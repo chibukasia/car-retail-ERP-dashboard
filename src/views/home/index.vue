@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import TabButton from '../../components/Custom/Buttons/TabButton.vue'
 import HomeHeader from '../../components/Custom/Headers/HomeHeader.vue'
 import SearchByBrand from './components/SearchByBrand.vue'
-import VinSearch from './components/VinSearch.vue'
+import HomeSeacrh from './components/HomeSearch.vue'
 
 interface IButton {
   title: string
@@ -29,6 +29,7 @@ const isPersonal: Ref<boolean> = ref(true)
 const isCommercial: Ref<boolean> = ref(true)
 const currentButton: Ref<string> = ref('Home')
 const smartSearch: Ref<string> = ref('')
+const searchCategoriesVisible: Ref<boolean> = ref(false)
 
 const handleClick = (button: IButton) => {
   if (
@@ -57,6 +58,14 @@ const handleClick = (button: IButton) => {
   currentButton.value = button.title
 }
 
+const hanldeShowSeacrhCategories = (): void => {
+  searchCategoriesVisible.value = !searchCategoriesVisible.value
+}
+
+const handleSaerchCategoryInputFocus = (): void => {
+  searchCategoriesVisible.value = false
+}
+
 const handleCommercialVehcileClick = () => {
   isCommercial.value = true
   isPersonal.value = false
@@ -81,46 +90,56 @@ const handleSamrtSeach = () => {
       <el-button size="medium" class="btn">Home</el-button>
       </div>
     -->
-    <div class="layout">
+    <div
+      class="layout"
+      @click.self="handleSaerchCategoryInputFocus"
+    >
       <div>
-        <HomeHeader />
-      </div>
-      <div class="tabs-buttons">
-        <TabButton
-          v-for="button in buttons"
-          :key="button.title"
-          :title="button.title"
-          :icon="button.icon"
-          :class="{ active: currentButton === button.title }"
-          @update-vehicle-type="handleClick(button)"
+        <HomeHeader
+          :search-categories-visible="searchCategoriesVisible"
+          @show-search-categories="hanldeShowSeacrhCategories"
+          @search-category-input-focus="handleSaerchCategoryInputFocus"
+          @catalogue-click="handleSaerchCategoryInputFocus"
         />
       </div>
-      <div class="search-section">
-        <div class="search-fields">
-          <div class="grid-content blue-text">
-            <div class="smart-search">
-              <ElButton
-                class="btn p-1.5"
-                icon="search"
-              >
-                Search
-              </ElButton>
-              <input
-                v-model="smartSearch"
-                type="text"
-                class="el-input mx-1 text-[#000]"
-                placeholder="Start typing..."
-              >
+      <div @click="handleSaerchCategoryInputFocus">
+        <div class="tabs-buttons">
+          <TabButton
+            v-for="button in buttons"
+            :key="button.title"
+            :title="button.title"
+            :icon="button.icon"
+            :class="{ active: currentButton === button.title }"
+            @update-vehicle-type="handleClick(button)"
+          />
+        </div>
+        <div class="search-section mt-4">
+          <div class="search-fields">
+            <div class="grid-content blue-text">
+              <div class="smart-search">
+                <ElButton
+                  class="btn p-1.5"
+                  icon="search"
+                >
+                  Search
+                </ElButton>
+                <input
+                  v-model="smartSearch"
+                  type="text"
+                  class="el-input mx-1 text-[#000]"
+                  placeholder="Start typing..."
+                >
+              </div>
             </div>
-          </div>
-          <div class="search-tabs">
-            <VinSearch
-              :is-commercial="isCommercial"
-              :is-personal="isPersonal"
-            />
-          </div>
-          <div class="search-by-brand">
-            <SearchByBrand />
+            <div class="search-tabs">
+              <HomeSeacrh
+                :is-commercial="isCommercial"
+                :is-personal="isPersonal"
+              />
+            </div>
+            <div class="search-by-brand">
+              <SearchByBrand />
+            </div>
           </div>
         </div>
       </div>
@@ -239,7 +258,7 @@ const handleSamrtSeach = () => {
 }
 
 .search-by-brand {
-  padding: 10px;
+  /* padding: 10px; */
   margin-top: 20px;
   background-color: #fff;
   box-shadow: 0 8px 6px -6px rgb(226, 224, 224);

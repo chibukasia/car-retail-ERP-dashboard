@@ -20,7 +20,6 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
           @click="toggleVerticalOverlayNavActive(true)"
         >
           <VIcon icon="bx-menu" />
-          Sear
         </IconBtn>
 
         <!-- 👉 Search -->

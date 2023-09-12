@@ -2,6 +2,14 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 
+defineProps({ searchCategoriesVisible: Boolean })
+
+defineEmits<{
+  (e: 'searchCategoryInputFocus'): void
+  (e: 'catalogueClick'): void
+  (e: 'showSearchCategories'): void
+}>()
+
 const catalogue: Ref<string> = ref('')
 
 const searchCategories: Ref<{ icon: string; content: string }[]> = ref([
@@ -15,25 +23,22 @@ const searchCategories: Ref<{ icon: string; content: string }[]> = ref([
   { icon: 'fa-magnifying-glass', content: 'Search by trade number' },
 ])
 
-const showSearchCategories: Ref<boolean> = ref(false)
 const selectectedSearchCategory: Ref<string> = ref(searchCategories.value[0].content)
-
-const hanldeShowSeacrhCategories = (): void => {
-  showSearchCategories.value = !showSearchCategories.value
-}
 
 const handleSearchCategorySelect = (content: string): void => {
   selectectedSearchCategory.value = content
-  showSearchCategories.value = false
 }
 </script>
 
 <template>
   <ElRow
     :gutter="20"
-    @click.self="showSearchCategories = false"
+    @click.self="$emit('catalogueClick')"
   >
-    <ElCol :span="3">
+    <ElCol
+      :span="3"
+      @click="$emit('catalogueClick')"
+    >
       <div class="grid-content blue-text">
         Catalogue Search
       </div>
@@ -49,19 +54,20 @@ const handleSearchCategorySelect = (content: string): void => {
             type="text"
             class="el-input"
             :placeholder="selectectedSearchCategory"
-            @focus="showSearchCategories = false"
+            @focus="$emit('searchCategoryInputFocus')"
           >
           <FontAwesomeIcon
             icon="fa-solid fa-qrcode"
             size="xl"
             class="icon"
-            @click="hanldeShowSeacrhCategories"
+            @click="$emit('showSearchCategories')"
           />
         </div>
       </div>
       <div
-        v-if="showSearchCategories"
+        v-if="searchCategoriesVisible"
         class="bg-slate-50 mx-2 shadow-lg absolute w-[97%] mt-1 -mr-10 z-10"
+        @click="$emit('catalogueClick')"
       >
         <div
           v-for="searchCategory in searchCategories"
@@ -77,7 +83,10 @@ const handleSearchCategorySelect = (content: string): void => {
         </div>
       </div>
     </ElCol>
-    <ElCol :span="6">
+    <ElCol
+      :span="6"
+      @click="$emit('catalogueClick')"
+    >
       <div class="grid-content blue-text account">
         <!--
           <div class="account-btn">
