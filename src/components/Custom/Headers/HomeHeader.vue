@@ -111,6 +111,7 @@ const handleSearchCategorySelect = (content: string): void => {
 }
 .el-input {
   margin-left: 0px;
+  padding-left: 10px;
   border-right: 1px solid #86b7fd;
   &:focus {
     outline: none;
@@ -121,5 +122,13 @@ const handleSearchCategorySelect = (content: string): void => {
 .icon {
   padding: 10px;
   width: 30px;
+}
+.grid-content {
+  border-radius: 4px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  width: 100%;
 }
 </style>

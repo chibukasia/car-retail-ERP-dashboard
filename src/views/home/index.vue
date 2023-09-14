@@ -234,7 +234,7 @@ const handleSamrtSeach = () => {
 }
 
 .blue-text {
-  color: #2d4aae;
+  color: var(--primary-color);
   font-weight: 600;
 }
 

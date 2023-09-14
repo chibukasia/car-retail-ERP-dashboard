@@ -2,9 +2,11 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import LabeledSwitch from '../../Custom/Switches/LabeledSwitch.vue'
+import CarInfo from '../Results/CarInfo.vue'
 
 const plate: Ref<string> = ref('')
 const type: Ref<string> = ref('TU')
+const carData: Ref<unknown> = ref(null)
 
 const setVehiclePlateType = (value: string) => {
   type.value = value
@@ -32,7 +34,7 @@ const handleSearchByPlate = () => {
         <div class="flex flex-wrap">
           <ElInput
             v-model="plate"
-            placeholder="156-TU-2999"
+            :placeholder="`156-${type}-2999`"
             class="w-full"
           />
         </div>
@@ -46,6 +48,9 @@ const handleSearchByPlate = () => {
       >
         Search
       </ElButton>
+    </div>
+    <div v-if="carData">
+      <CarInfo :car-data="carData" />
     </div>
   </div>
 </template>

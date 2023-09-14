@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+import CarInfo from '../Results/CarInfo.vue'
 
 interface Option {
   label: string
@@ -32,6 +33,8 @@ const options: Ref<Option[]> = ref([
     label: 'Option5',
   },
 ])
+
+const carData: Ref<unknown> = ref(null)
 
 const hadleSearchByVin = () => {
   /**
@@ -127,6 +130,9 @@ const handleVehicleSearch = () => {
       >
         Search
       </ElButton>
+    </div>
+    <div v-if="carData">
+      <CarInfo :car-data="carData" />
     </div>
   </div>
 </template>

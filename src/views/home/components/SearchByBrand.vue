@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+import CarInfo from '../../../components/Custom/Results/CarInfo.vue'
 
 interface Option {
   label: string
@@ -34,6 +35,8 @@ const productGroupOptions: Ref<Option[]> = ref([
     label: 'Option3',
   },
 ])
+
+const carData: Ref<any> = ref(null)
 
 const handleSearchByBrand = () => {
   /**
@@ -97,6 +100,9 @@ const handleSearchByBrand = () => {
         </div>
       </div>
     </ElTabPane>
+    <div v-if="carData">
+      <CarInfo :car-data="carData" />
+    </div>
   </ElTabs>
 </template>
 

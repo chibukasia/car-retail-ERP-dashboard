@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+import CarInfo from '../Results/CarInfo.vue'
 
 interface IVehicle {
   passenger: string
@@ -45,6 +46,23 @@ const isSelected: Ref<boolean> = ref(true)
 const modelYear: Ref<string> = ref('2023')
 const fuelType: Ref<string> = ref('Diesel')
 const ccCapacity: Ref<string> = ref('10000')
+
+const carData: Ref<unknown> = ref({
+  TYPE: 'ACURA EL Saloon 1.6',
+  CONSTRUCTION_INTERVAL_START: '1996-09-00',
+  CONSTRUCTION_INTERVAL_END: '2000-12-00',
+  POWER_KW: 95.0000,
+  POWER_PS: 129.0000,
+  CAPACITY_LT: 1.6000,
+  CAPACITY_TECH: 1590.0000,
+  NUMBER_OF_CYLINDERS: 4,
+  BODY_TYPE: 'Saloon',
+  ENGINE_TYPE: 'Petrol Engine',
+  DRIVE_TYPE: 'Front-Wheel Drive',
+  FUEL_TYPE: 'Petrol',
+  CATALYSATOR_TYPE: 'with three-way catalytic converter',
+  FUEL_MIXTURE: 'Intake Manifold Injection/Carburettor',
+})
 
 const handleClick = () => {
   isSelected.value = !isSelected.value
@@ -163,6 +181,9 @@ const handleManualSearch = () => {
       >
         Search
       </ElButton>
+    </div>
+    <div v-if="carData">
+      <CarInfo :car-data="carData" />
     </div>
   </div>
 </template>

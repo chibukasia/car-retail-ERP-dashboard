@@ -9,12 +9,27 @@ const router = createRouter({
       component: () => import('../layouts/default.vue'),
       children: [
         {
-          path: 'dashboard',
-          component: () => import('../pages/dashboard.vue'),
+          path: 'home',
+          name: 'Home',
+          component: () => import('../pages/home.vue'),
         },
         {
-          path: 'home',
-          component: () => import('../pages/home.vue'),
+          path: 'my-search/search-list',
+          name: 'SearchList',
+          component: () => import('../pages/my-search/search-list.vue'),
+          props: true,
+        },
+        {
+          path: 'my-search/parts-categories',
+          name: 'PartsCategories',
+          component: () => import('../pages/my-search/parts-categories.vue'),
+          props: true,
+        },
+        {
+          path: 'my-search/:name/:id',
+          name: 'MySearch',
+          component: () => import('../pages/my-search/search-product.vue'),
+          props: true,
         },
         {
           path: 'account-settings',
