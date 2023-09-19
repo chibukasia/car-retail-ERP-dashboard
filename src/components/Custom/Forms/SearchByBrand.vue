@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+// eslint-disable-next-line regex/invalid
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import CarInfo from '../../../components/Custom/Results/CarInfo.vue'

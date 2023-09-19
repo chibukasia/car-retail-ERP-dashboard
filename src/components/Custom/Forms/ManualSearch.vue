@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+// eslint-disable-next-line regex/invalid
 import axios from 'axios'
 import { isEmpty } from 'lodash'
 import CarInfo from '../Results/CarInfo.vue'
@@ -11,16 +12,11 @@ import useManufacturers from '@/composables/manufacturers'
 import useModels from '@/composables/models'
 import useCars from '@/composables/cars'
 
-// import useManufacturers from '../../../composables/manufacturers'
-
 interface IVehicle {
   passenger: string
   commercial: string
 }
-interface IManufacturer {
-  MFA_ID: string
-  MFA_BRAND: string
-}
+
 interface IButton {
   title: string
   isActive: boolean
@@ -30,21 +26,14 @@ interface IButton {
 
 const router = useRouter()
 const store = useCarStore()
-const { getManufacturers, manufacturers: manus, manufacturersLoading } = useManufacturers()
+const { getManufacturers, manufacturers, manufacturersLoading } = useManufacturers()
 const { getModels, models, modelsLoading } = useModels()
-const { getCars, cars, carsLoading } = useCars()
-
-// const { error: dataError, getManufacturers, loading } = useManufacturers()
+const { getCars, cars, carsLoading, carData } = useCars()
 
 const vehicles: Ref<IVehicle> = ref({
   passenger: 'Passenger',
   commercial: 'Commercial vehicle & tractor',
 })
-
-const manufacturers: Ref<IManufacturer[]> = ref([])
-
-// const models: Ref<any[]> = ref([])
-// const cars: Ref<any[]> = ref([])
 
 const selectedType: Ref<string> = ref('PC')
 
@@ -75,7 +64,7 @@ const modelYear: Ref<string> = ref('2023')
 const fuelType: Ref<string> = ref('Diesel')
 const ccCapacity: Ref<string> = ref('10000')
 
-const carData: Ref<any> = ref({})
+// const carData: Ref<any> = ref({})
 const loading: Ref<boolean> = ref(false)
 
 const fullscreenLoading = ref(false)
@@ -141,11 +130,11 @@ const handleTypeClick = (button: IButton) => {
   selectedType.value = button.type
 }
 
-watchEffect(async () => getManufacturers(selectedType.value))
+watchEffect(async () => await getManufacturers(selectedType.value))
 
-watch(selectedManufacturer, async () => getModels({ selectedManufacturer: selectedManufacturer.value, selectedType: selectedType.value }))
+watch(selectedManufacturer, async () => await getModels({ selectedManufacturer: selectedManufacturer.value, selectedType: selectedType.value }))
 
-watch(model, async () => getCars({ model: model.value, selectedType: selectedType.value }))
+watch(model, async () => await getCars({ model: model.value, selectedType: selectedType.value }))
 
 watch(car, async () => {
   try {
@@ -217,7 +206,7 @@ watchEffect(() => {
           class="select"
         >
           <ElOption
-            v-for="item in manus"
+            v-for="item in manufacturers"
             :key="item.MFA_ID"
             :label="item.MFA_BRAND"
             :value="item.MFA_ID"

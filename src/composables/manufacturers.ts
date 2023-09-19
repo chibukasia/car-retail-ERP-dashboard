@@ -4,8 +4,13 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { MANUFACTURERS_DOMAIN } from './constant'
 
+interface IManufacturer {
+  MFA_ID: string
+  MFA_BRAND: string
+}
+
 export default function useManufacturers() {
-  const manufacturers: Ref<any[]> = ref([])
+  const manufacturers: Ref<IManufacturer[]> = ref([])
   const loading: Ref<boolean> = ref(false)
   const error: Ref<string> = ref('')
 
