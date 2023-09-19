@@ -1,23 +1,24 @@
-import type { Ref } from 'vue'
-import { ref } from 'vue'
 // eslint-disable-next-line regex/invalid
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import { VIN_DOMAIN } from './constant'
+import { PLATE_NUMBER } from './constant'
+import useCarStore from '@/store/car'
 
-export default function useVins() {
+const store = useCarStore()
+export default function usePlates() {
+  const carData: Ref<any> = ref(null)
   const loading: Ref<boolean> = ref(false)
-  const error: Ref<string> = ref('')
   const noDataFound: Ref<boolean> = ref(false)
-  const searchData: Ref<any> = ref(null)
+  const error: Ref<string> = ref('')
 
-  const getByVins = async (vinInput: string) => {
+  const getByPlates = async (params: { plate: string; serie: string }) => {
     try {
       loading.value = true
 
-      const response = await axios.get(VIN_DOMAIN, {
+      const response = await axios.get(PLATE_NUMBER, {
         params: {
-          vin: vinInput,
+          platenum: params.plate,
+          serie: params.serie,
         },
       })
 
@@ -30,8 +31,9 @@ export default function useVins() {
         return
       }
 
-      searchData.value = responseData.data
+      carData.value = responseData.data
       loading.value = false
+      store.setCarInfo(carData.value)
     }
     catch (err: any) {
       console.log(err)
@@ -54,6 +56,6 @@ export default function useVins() {
   }
 
   return {
-    error, loading, getByVins, noDataFound, searchData,
+    getByPlates, carData, loading, error, noDataFound,
   }
 }

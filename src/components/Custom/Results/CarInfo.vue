@@ -1,28 +1,29 @@
 <!-- eslint-disable vue/require-prop-types -->
 <script setup lang="ts">
-import type { Ref } from 'vue'
-import { ref } from 'vue'
+import { pickBy } from 'lodash'
+import useCarStore from '../../../store/car'
 
-const props = defineProps(['carData'])
+const store = useCarStore()
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const carInfo: Ref<any> = ref(props.carData)
+const newCarData = computed(() => {
+  return pickBy(store.cartInfo, (value: any) => value !== null)
+})
 </script>
 
 <template>
-  <div>
+  <div v-if="store.cartInfo">
     <h2 class="pb-4 text-xl font-semibold">
       Car info
     </h2>
     <div class="flex flex-col md:flex-row flex-wrap w-full gap-3">
       <div
-        v-for="(value, key) in carInfo"
+        v-for="(value, key) in newCarData"
         :key="key"
         class="w-full md:w-[32%]"
       >
-        <div class="">
-          <p>{{ key.toString().replace(/_/g, ' ') }}: {{ value }}</p>
-        </div>
+        <p v-if="value !== null">
+          {{ key.toString().replace(/_/g, ' ') }}: {{ value }}
+        </p>
       </div>
     </div>
   </div>

@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
-import { VIN_DOMAIN } from '../../../composables/constant'
-
-const vinInput: Ref<string> = ref('')
-const error: Ref<string> = ref('')
-const loading: Ref<boolean> = ref(false)
-const noDataFound: Ref<boolean> = ref(false)
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const carData: Ref<any> = ref(null)
+import useVins from '@/composables/vins'
 
 const router = useRouter()
+
+const { loading, error, searchData, noDataFound, getByVins } = useVins()
+
+const vinInput: Ref<string> = ref('')
 
 const hadleSearchByVin = async () => {
   loading.value = true
@@ -28,46 +22,8 @@ const hadleSearchByVin = async () => {
     return
   }
 
-  try {
-    loading.value = true
-
-    const response = await axios.get(VIN_DOMAIN, {
-      params: {
-        vin: vinInput.value,
-      },
-    })
-
-    const responseData = response.data
-
-    if (!responseData.data) {
-      noDataFound.value = true
-      loading.value = false
-
-      return
-    }
-
-    carData.value = responseData.data
-    loading.value = false
-    router.push({ name: 'Parts Categories', params: { id: responseData.data.carId } })
-  }
-  catch (err: any) {
-    console.log(err)
-    loading.value = false
-    if (err.response) {
-      error.value = err.response.data.message
-    }
-    else if (err.request) {
-      console.log(err.request)
-    }
-    else {
-      ElMessage({
-        message: 'Oops! Something went wrong',
-        showClose: true,
-        type: 'error',
-        customClass: 'font-bold',
-      })
-    }
-  }
+  await getByVins(vinInput.value)
+  await searchData.value && router.push({ name: 'Parts Categories', params: { id: searchData.value.carId } })
 }
 </script>
 

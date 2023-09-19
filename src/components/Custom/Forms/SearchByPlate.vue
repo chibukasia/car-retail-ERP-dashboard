@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import axios from 'axios'
-import { useRouter } from 'vue-router'
 import LabeledSwitch from '../../Custom/Switches/LabeledSwitch.vue'
 import CarInfo from '../Results/CarInfo.vue'
-import { PLATE_NUMBER } from '../../../composables/constant'
+import usePlates from '@/composables/plates'
 
 const router = useRouter()
 
+const { carData, error, loading, getByPlates, noDataFound } = usePlates()
 const plate: Ref<string> = ref('')
-const error: Ref<string> = ref('')
 const serie: Ref<string> = ref('TU')
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const carData: Ref<any> = ref(null)
-const loading: Ref<boolean> = ref(false)
-const noDataFound: Ref<boolean> = ref(false)
 
 const setVehiclePlateType = (value: string) => {
   serie.value = value
@@ -28,47 +22,8 @@ const handleSearchByPlate = async () => {
     return
   }
 
-  try {
-    loading.value = true
-
-    const response = await axios.get(PLATE_NUMBER, {
-      params: {
-        platenum: plate.value,
-        serie: serie.value,
-      },
-    })
-
-    const responseData = response.data
-
-    if (!responseData.data) {
-      noDataFound.value = true
-      loading.value = false
-
-      return
-    }
-
-    carData.value = responseData.data
-    loading.value = false
-    router.push({ name: 'Parts Categories', params: { id: responseData.data.carId } })
-  }
-  catch (err: any) {
-    console.log(err)
-    loading.value = false
-    if (err.response) {
-      error.value = err.response.data.message
-    }
-    else if (err.request) {
-      console.log(err.request)
-    }
-    else {
-      ElMessage({
-        message: 'Oops! Something went wrong',
-        showClose: true,
-        type: 'error',
-        customClass: 'font-bold',
-      })
-    }
-  }
+  await getByPlates({ plate: plate.value, serie: serie.value })
+  await carData.value && router.push({ name: 'Parts Categories', params: { id: carData.value.carId } })
 }
 </script>
 
@@ -119,8 +74,11 @@ const handleSearchByPlate = async () => {
         indeterminate
       />
     </div>
+    <div v-if="noDataFound">
+      <p>NO DATA FOUND</p>
+    </div>
     <div v-if="carData">
-      <CarInfo :car-data="carData" />
+      <CarInfo />
     </div>
   </div>
 </template>

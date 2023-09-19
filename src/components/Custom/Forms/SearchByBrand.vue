@@ -2,6 +2,7 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
 import CarInfo from '../../../components/Custom/Results/CarInfo.vue'
 import { BRANDS_DOMAIN } from '../../../composables/constant'
 
@@ -35,6 +36,10 @@ const handleSearchByBrand = () => {
    * @todo add search logic
    */
 }
+
+/**
+ * TO BE TESTED AND THEN REFACTORED
+ */
 
 onMounted(async () => {
   try {
@@ -153,7 +158,7 @@ watchEffect(async () => {
       </ElButton>
     </div>
     <div v-if="carData">
-      <CarInfo :car-data="carData" />
+      <CarInfo />
     </div>
   </div>
 </template>

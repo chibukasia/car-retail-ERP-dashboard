@@ -5,7 +5,11 @@ import axios from 'axios'
 import { isEmpty } from 'lodash'
 import CarInfo from '../Results/CarInfo.vue'
 import TabButton from '../Buttons/TabButton.vue'
-import { CARS_DOMAIN, CAR_INFO, MANUFACTURERS_DOMAIN, MODELS_DOMAIN } from '@/composables/constant'
+import { CAR_INFO } from '@/composables/constant'
+import useCarStore from '@/store/car'
+import useManufacturers from '@/composables/manufacturers'
+import useModels from '@/composables/models'
+import useCars from '@/composables/cars'
 
 // import useManufacturers from '../../../composables/manufacturers'
 
@@ -25,6 +29,10 @@ interface IButton {
 }
 
 const router = useRouter()
+const store = useCarStore()
+const { getManufacturers, manufacturers: manus, manufacturersLoading } = useManufacturers()
+const { getModels, models, modelsLoading } = useModels()
+const { getCars, cars, carsLoading } = useCars()
 
 // const { error: dataError, getManufacturers, loading } = useManufacturers()
 
@@ -34,8 +42,9 @@ const vehicles: Ref<IVehicle> = ref({
 })
 
 const manufacturers: Ref<IManufacturer[]> = ref([])
-const models: Ref<any[]> = ref([])
-const cars: Ref<any[]> = ref([])
+
+// const models: Ref<any[]> = ref([])
+// const cars: Ref<any[]> = ref([])
 
 const selectedType: Ref<string> = ref('PC')
 
@@ -132,70 +141,11 @@ const handleTypeClick = (button: IButton) => {
   selectedType.value = button.type
 }
 
-watchEffect(async () => {
-  try {
-    loading.value = true
+watchEffect(async () => getManufacturers(selectedType.value))
 
-    const response = await axios.get(MANUFACTURERS_DOMAIN, {
-      params: {
-        typeCar: selectedType.value,
-      },
-    })
+watch(selectedManufacturer, async () => getModels({ selectedManufacturer: selectedManufacturer.value, selectedType: selectedType.value }))
 
-    const data = await response.data
-
-    manufacturers.value = data.data
-    loading.value = false
-  }
-  catch (error) {
-    console.log(error)
-    loading.value = false
-  }
-})
-
-watch(selectedManufacturer, async () => {
-  try {
-    loading.value = true
-
-    const response = await axios.get(MODELS_DOMAIN, {
-      params: {
-        manu: selectedManufacturer.value,
-        typeCar: selectedType.value,
-      },
-    })
-
-    const data = await response.data
-
-    models.value = data.data
-    loading.value = false
-  }
-  catch (error) {
-    console.log(error)
-    loading.value = false
-  }
-})
-
-watch(model, async () => {
-  try {
-    loading.value = true
-
-    const response = await axios.get(CARS_DOMAIN, {
-      params: {
-        model: model.value,
-        typeCar: selectedType.value,
-      },
-    })
-
-    const data = await response.data
-
-    cars.value = data.data
-    loading.value = false
-  }
-  catch (error) {
-    console.log(error)
-    loading.value = false
-  }
-})
+watch(model, async () => getCars({ model: model.value, selectedType: selectedType.value }))
 
 watch(car, async () => {
   try {
@@ -211,12 +161,17 @@ watch(car, async () => {
     const data = await response.data
 
     carData.value = data.data
+    store.setCarInfo(carData.value)
     loading.value = false
   }
-  catch (error) {
-    console.log(error)
+  catch (err) {
+    console.log(err)
     loading.value = false
   }
+})
+
+watchEffect(() => {
+  loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value
 })
 </script>
 
@@ -254,7 +209,7 @@ watch(car, async () => {
     </div>
     <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
       <div class="w-full md:w-1/3">
-        <label> Select Manufactuerer </label>
+        <label> Select Manufactuerer {{ manufacturers.length > 0 ? `(${manufacturers.length})` : '' }} </label>
         <ElSelect
           v-model="selectedManufacturer"
           filterable
@@ -262,7 +217,7 @@ watch(car, async () => {
           class="select"
         >
           <ElOption
-            v-for="item in manufacturers"
+            v-for="item in manus"
             :key="item.MFA_ID"
             :label="item.MFA_BRAND"
             :value="item.MFA_ID"
@@ -276,7 +231,7 @@ watch(car, async () => {
         </p>
       </div>
       <div class="w-full md:w-1/3">
-        <label> Select Model</label>
+        <label> Select Model {{ models.length > 0 ? `(${models.length})` : '' }}</label>
         <ElSelect
           v-model="model"
           filterable
@@ -298,7 +253,7 @@ watch(car, async () => {
         </p>
       </div>
       <div class="w-full md:w-1/3">
-        <label> Select Car</label>
+        <label> Select Car  {{ cars.length > 0 ? `(${cars.length})` : '' }}</label>
         <ElSelect
           v-model="car"
           filterable
@@ -357,7 +312,7 @@ watch(car, async () => {
       </ElButton>
     </div>
     <div v-if="!isEmpty(carData)">
-      <CarInfo :car-data="carData" />
+      <CarInfo />
       <div
         v-if="$route.path === '/home'"
         class="pt-5"

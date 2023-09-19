@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+import axios from 'axios'
 import PartOverViewVue from '../cards/PartOverView.vue'
+import { ARTICLES_DOMAIN } from '@/composables/constant'
 
 const searchResults: Ref<
   { id: string | number; title: string; status: string; image: string }[]
@@ -64,6 +66,26 @@ const handleFilterItemClick = (item: string) => {
    * @todo update logic
    */
 }
+
+/**
+ * TO BE TESTED AND THEN REFACTORED
+ */
+onMounted(async () => {
+  try {
+    const response = await axios.get(ARTICLES_DOMAIN, {
+      params: {
+        strId: '',
+      },
+    })
+
+    const responseData = response.data
+
+    searchResults.value = responseData.data
+  }
+  catch (e) {
+    console.log(e)
+  }
+})
 </script>
 
 <template>

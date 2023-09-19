@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+// eslint-disable-next-line regex/invalid
 import axios from 'axios'
 import { MANUFACTURERS_DOMAIN } from './constant'
 
@@ -31,6 +32,6 @@ export default function useManufacturers() {
   }
 
   return {
-    manufacturers, error, loading, getManufacturers,
+    manufacturers, error, manufacturersLoading: loading, getManufacturers,
   }
 }

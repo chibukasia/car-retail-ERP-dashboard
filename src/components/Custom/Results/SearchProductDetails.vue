@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
 import PartDetailsCard from '../cards/PartDetailsCard.vue'
+import { SINGLE_ARTICLE } from '@/composables/constant'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const partData: Ref<any> = ref({
@@ -27,6 +30,8 @@ const partData: Ref<any> = ref({
   ],
 })
 
+const articleData: Ref<any> = ref(null)
+
 const quantity: Ref<number> = ref(1)
 
 const quantityIncreament = () => {
@@ -42,6 +47,39 @@ const handleAddToCart = () => {
    * @todo implement add to cart
    */
 }
+
+onMounted(async () => {
+  try {
+    const response = await axios.get(SINGLE_ARTICLE, {
+      params: {
+        ART_ARTICLE_NR: '',
+        ART_ID: '',
+        SUP_ID: '',
+      },
+    })
+
+    const responseData = response.data
+
+    articleData.value = responseData.data
+  }
+  catch (error: any) {
+    console.log(error)
+    if (error.response) {
+      console.log(error)
+    }
+    else if (error.request) {
+      console.log(error.request)
+    }
+    else {
+      ElMessage({
+        message: 'Oops! Something went wrong',
+        showClose: true,
+        type: 'error',
+        customClass: 'font-bold',
+      })
+    }
+  }
+})
 </script>
 
 <template>
