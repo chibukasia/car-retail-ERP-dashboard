@@ -1,82 +1,237 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+import axios from 'axios'
+import { isEmpty } from 'lodash'
 import CarInfo from '../Results/CarInfo.vue'
+import TabButton from '../Buttons/TabButton.vue'
+import { CARS_DOMAIN, CAR_INFO, MANUFACTURERS_DOMAIN, MODELS_DOMAIN } from '@/composables/constant'
+
+// import useManufacturers from '../../../composables/manufacturers'
 
 interface IVehicle {
   passenger: string
   commercial: string
 }
-interface Option {
-  label: string
-  value: string
+interface IManufacturer {
+  MFA_ID: string
+  MFA_BRAND: string
+}
+interface IButton {
+  title: string
+  isActive: boolean
+  icon: string
+  type: string
 }
 
-defineProps({
-  isCommercial: Boolean,
-  isPersonal: Boolean,
-})
+const router = useRouter()
+
+// const { error: dataError, getManufacturers, loading } = useManufacturers()
 
 const vehicles: Ref<IVehicle> = ref({
   passenger: 'Passenger',
   commercial: 'Commercial vehicle & tractor',
 })
 
-const options: Ref<Option[]> = ref([{
-  value: 'Option1',
-  label: 'Option1',
-}, {
-  value: 'Option2',
-  label: 'Option2',
-}, {
-  value: 'Option3',
-  label: 'Option3',
-}, {
-  value: 'Option4',
-  label: 'Option4',
-}, {
-  value: 'Option5',
-  label: 'Option5',
-}])
+const manufacturers: Ref<IManufacturer[]> = ref([])
+const models: Ref<any[]> = ref([])
+const cars: Ref<any[]> = ref([])
 
-const manufacturer: Ref<string> = ref('')
-const engine: Ref<string> = ref('')
+const selectedType: Ref<string> = ref('PC')
+
+const buttons: Ref<IButton[]> = ref([
+  { title: 'Home', isActive: false, icon: 'fa-home', type: 'PC' },
+  { title: 'PC', isActive: false, icon: 'fa-car', type: 'PC' },
+  { title: 'LVC', isActive: false, icon: 'fa-truck', type: 'DC' },
+  { title: 'Motorcycle', isActive: false, icon: 'fa-motorcycle', type: 'MTB' },
+  { title: 'CV', isActive: false, icon: 'fa-bus-simple', type: 'CV' },
+  { title: 'Tractor', isActive: false, icon: 'fa-tractor', type: 'TRA' },
+  { title: 'Engine', isActive: false, icon: 'fa-gears', type: 'ENG' },
+  { title: 'Axel', isActive: false, icon: 'fa-arrows-left-right', type: 'AXL' },
+  { title: 'CV body type', isActive: false, icon: 'fa-van-shuttle', type: 'CV' },
+])
+
+const isPersonal: Ref<boolean> = ref(true)
+const isCommercial: Ref<boolean> = ref(true)
+const currentButton: Ref<string> = ref('Home')
+
+const selectedManufacturer: Ref<string> = ref('')
+const car: Ref<string> = ref('')
 const model: Ref<string> = ref('')
+const manufacturerErr: Ref<string> = ref('')
+const carErr: Ref<string> = ref('')
+const modelErr: Ref<string> = ref('')
 const isSelected: Ref<boolean> = ref(true)
 const modelYear: Ref<string> = ref('2023')
 const fuelType: Ref<string> = ref('Diesel')
 const ccCapacity: Ref<string> = ref('10000')
 
-const carData: Ref<unknown> = ref({
-  TYPE: 'ACURA EL Saloon 1.6',
-  CONSTRUCTION_INTERVAL_START: '1996-09-00',
-  CONSTRUCTION_INTERVAL_END: '2000-12-00',
-  POWER_KW: 95.0000,
-  POWER_PS: 129.0000,
-  CAPACITY_LT: 1.6000,
-  CAPACITY_TECH: 1590.0000,
-  NUMBER_OF_CYLINDERS: 4,
-  BODY_TYPE: 'Saloon',
-  ENGINE_TYPE: 'Petrol Engine',
-  DRIVE_TYPE: 'Front-Wheel Drive',
-  FUEL_TYPE: 'Petrol',
-  CATALYSATOR_TYPE: 'with three-way catalytic converter',
-  FUEL_MIXTURE: 'Intake Manifold Injection/Carburettor',
-})
+const carData: Ref<any> = ref({})
+const loading: Ref<boolean> = ref(false)
+
+const fullscreenLoading = ref(false)
 
 const handleClick = () => {
   isSelected.value = !isSelected.value
 }
 
 const handleManualSearch = () => {
-  /**
-   * Update logic to handle manual search
-   */
+  if (selectedManufacturer.value === '') {
+    manufacturerErr.value = 'Manufactuerer is required'
+
+    return
+  }
+
+  if (model.value === '') {
+    modelErr.value = 'Model  field required'
+
+    return
+  }
+
+  if (car.value === '') {
+    carErr.value = 'Car field required'
+
+    return
+  }
+  fullscreenLoading.value = true
+  setTimeout(() => {
+    fullscreenLoading.value = false
+  }, 2000)
+  console.log(car.value, model.value, selectedManufacturer.value)
 }
+
+const handleRedirect = () => {
+  router.push({ name: 'Parts Categories' })
+}
+
+const handleTypeClick = (button: IButton) => {
+  if (
+    button.title.toLocaleLowerCase() === 'pc'
+    || button.title.toLocaleLowerCase() === 'lvc'
+    || button.title.toLocaleLowerCase() === 'motorcycle'
+  ) {
+    isCommercial.value = false
+    isPersonal.value = true
+  }
+  else if (
+    button.title.toLocaleLowerCase() === 'cv'
+    || button.title.toLocaleLowerCase() === 'tractor'
+    || button.title.toLocaleLowerCase() === 'engine'
+    || button.title.toLocaleLowerCase() === 'axel'
+    || button.title.toLocaleLowerCase() === 'cv body type'
+  ) {
+    isCommercial.value = true
+    isPersonal.value = false
+  }
+  else {
+    isCommercial.value = true
+    isPersonal.value = true
+  }
+
+  currentButton.value = button.title
+  selectedType.value = button.type
+}
+
+watchEffect(async () => {
+  try {
+    loading.value = true
+
+    const response = await axios.get(MANUFACTURERS_DOMAIN, {
+      params: {
+        typeCar: selectedType.value,
+      },
+    })
+
+    const data = await response.data
+
+    manufacturers.value = data.data
+    loading.value = false
+  }
+  catch (error) {
+    console.log(error)
+    loading.value = false
+  }
+})
+
+watch(selectedManufacturer, async () => {
+  try {
+    loading.value = true
+
+    const response = await axios.get(MODELS_DOMAIN, {
+      params: {
+        manu: selectedManufacturer.value,
+        typeCar: selectedType.value,
+      },
+    })
+
+    const data = await response.data
+
+    models.value = data.data
+    loading.value = false
+  }
+  catch (error) {
+    console.log(error)
+    loading.value = false
+  }
+})
+
+watch(model, async () => {
+  try {
+    loading.value = true
+
+    const response = await axios.get(CARS_DOMAIN, {
+      params: {
+        model: model.value,
+        typeCar: selectedType.value,
+      },
+    })
+
+    const data = await response.data
+
+    cars.value = data.data
+    loading.value = false
+  }
+  catch (error) {
+    console.log(error)
+    loading.value = false
+  }
+})
+
+watch(car, async () => {
+  try {
+    loading.value = true
+
+    const response = await axios.get(CAR_INFO, {
+      params: {
+        car: car.value,
+        typeCar: selectedType.value,
+      },
+    })
+
+    const data = await response.data
+
+    carData.value = data.data
+    loading.value = false
+  }
+  catch (error) {
+    console.log(error)
+    loading.value = false
+  }
+})
 </script>
 
 <template>
   <div class="manual-search">
+    <div class="tabs-buttons">
+      <TabButton
+        v-for="button in buttons"
+        :key="button.title"
+        :title="button.title"
+        :icon="button.icon"
+        :class="{ active: currentButton === button.title }"
+        @update-vehicle-type="handleTypeClick(button)"
+      />
+    </div>
     <div class="vehicle-type">
       <button
         class="icon-btn"
@@ -97,25 +252,31 @@ const handleManualSearch = () => {
         {{ vehicles.commercial }}
       </button>
     </div>
-    <div class=" w-full flex flex-col md:flex-row gap-4 md:gap-0">
-      <div class="w-full md:w-1/3 ">
+    <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
+      <div class="w-full md:w-1/3">
         <label> Select Manufactuerer </label>
         <ElSelect
-          v-model="manufacturer"
+          v-model="selectedManufacturer"
           filterable
           placeholder="Select"
           class="select"
         >
           <ElOption
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            v-for="item in manufacturers"
+            :key="item.MFA_ID"
+            :label="item.MFA_BRAND"
+            :value="item.MFA_ID"
           />
         </ElSelect>
+        <p
+          v-if="selectedManufacturer === ''"
+          class="text-red-500 text-sm"
+        >
+          {{ manufacturerErr }}
+        </p>
       </div>
-      <div class="w-full md:w-1/3 ">
-        <label> Select <i class="mdi mdi-globe-model:" /></label>
+      <div class="w-full md:w-1/3">
+        <label> Select Model</label>
         <ElSelect
           v-model="model"
           filterable
@@ -123,31 +284,43 @@ const handleManualSearch = () => {
           class="select"
         >
           <ElOption
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            v-for="item in models"
+            :key="item.MS_ID"
+            :label="item.MS_NAME"
+            :value="item.MS_ID"
           />
         </ElSelect>
+        <p
+          v-if="model === ''"
+          class="text-red-500 text-sm"
+        >
+          {{ modelErr }}
+        </p>
       </div>
-      <div class="w-full md:w-1/3 ">
-        <label> Select Engine</label>
+      <div class="w-full md:w-1/3">
+        <label> Select Car</label>
         <ElSelect
-          v-model="engine"
+          v-model="car"
           filterable
           placeholder="Select"
           class="select"
         >
           <ElOption
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            v-for="item in cars"
+            :key="item.ELEMENT_ID"
+            :label="item.ELEMENT_NAME"
+            :value="Number(item.ELEMENT_ID)"
           />
         </ElSelect>
+        <p
+          v-if="car === ''"
+          class="text-red-500 text-sm"
+        >
+          {{ carErr }}
+        </p>
       </div>
     </div>
-    <div class="w-full flex flex-col md:flex-row gap-4 md:gap-0">
+    <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
       <div class="w-full md:w-1/3">
         <label> Model Year </label>
         <ElInput
@@ -175,6 +348,7 @@ const handleManualSearch = () => {
     </div>
     <div>
       <ElButton
+        v-loading.fullscreen.lock="loading"
         class="btn"
         icon="search"
         @click="handleManualSearch"
@@ -182,8 +356,21 @@ const handleManualSearch = () => {
         Search
       </ElButton>
     </div>
-    <div v-if="carData">
+    <div v-if="!isEmpty(carData)">
       <CarInfo :car-data="carData" />
+      <div
+        v-if="$route.path === '/home'"
+        class="pt-5"
+      >
+        <VBtn
+          color="#2d4aae"
+          append-icon="mdi-arrow-right"
+          class="text-white"
+          @click="handleRedirect"
+        >
+          Go to categories
+        </VBtn>
+      </div>
     </div>
   </div>
 </template>
@@ -193,6 +380,14 @@ const handleManualSearch = () => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+.tabs-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  background-color: #fff;
 }
 button {
   cursor: pointer;
@@ -212,11 +407,11 @@ button {
 }
 button:disabled,
 button[disabled],
-button[disabled]:hover{
+button[disabled]:hover {
   border: 1px solid #999999;
   background-color: #cccccc;
   color: #666666;
-  cursor:auto;
+  cursor: auto;
 }
 .active {
   background-color: #2d4aae;
@@ -234,7 +429,7 @@ button:hover {
   gap: 20px;
 }
 
-.el-input{
+.el-input {
   padding: 0px;
   margin-left: -10px;
 }
@@ -242,9 +437,9 @@ button:hover {
   width: 100%;
 }
 
-label{
-    padding: 5px 0px;
-    margin-bottom: 5px;
-    font-weight: normal;
+label {
+  padding: 5px 0px;
+  margin-bottom: 5px;
+  font-weight: normal;
 }
 </style>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import PartCard from '../cards/PartCard.vue'
+import PartCard from '../../../components/Custom/cards/PartCard.vue'
+import CarOverView from '../../../components/Custom/Results/CarOverview.vue'
 
 const searchResults: Ref<{ id: string | number; name: string; image: string }[]> = ref([
   { id: 1, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412642/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
@@ -23,6 +24,7 @@ const page: Ref<number> = ref(1)
 
 <template>
   <div class="p-3 space-y-4">
+    <CarOverView />
     <div>
       <h3 class="blue-text text-lg text-center">
         {{ categoryTitle }}
@@ -35,7 +37,7 @@ const page: Ref<number> = ref(1)
           :key="result.id"
           class="cursor-pointer"
         >
-          <RouterLink :to="{ name: 'SearchList' }">
+          <RouterLink :to="{ name: 'Search List' }">
             <PartCard
               :name="result.name"
               :image="result.image"

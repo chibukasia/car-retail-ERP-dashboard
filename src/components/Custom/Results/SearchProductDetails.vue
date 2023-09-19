@@ -27,9 +27,19 @@ const partData: Ref<any> = ref({
   ],
 })
 
+const quantity: Ref<number> = ref(1)
+
+const quantityIncreament = () => {
+  quantity.value++
+}
+
+const quantityDecreament = () => {
+  quantity.value--
+}
+
 const handleAddToCart = () => {
   /**
-   * @todo handle add to cart
+   * @todo implement add to cart
    */
 }
 </script>
@@ -70,26 +80,35 @@ const handleAddToCart = () => {
       </div>
     </div>
     <div class="flex w-full bg-white shadow-md rounded-md p-5">
+      <div class="w-1/2 flex items-center gap-3">
+        <VBtn
+          density="comfortable"
+          variant="text"
+          icon="mdi-minus"
+          class="bg-[#242a64] text-white"
+          :disabled="quantity <= 1"
+          @click="quantityDecreament"
+        />
+        <p class="border p-2 rounded-md text-lg text-black font-semibold">
+          {{ quantity }}
+        </p>
+        <VBtn
+          density="comfortable"
+          variant="text"
+          icon="mdi-plus"
+          class="bg-[#242a64] text-white"
+          @click="quantityIncreament"
+        />
+      </div>
       <div class="w-1/2">
         <VBtn
-          color="#2d4aae"
+          color="#242a64"
           prepend-icon="mdi-cart"
           class="text-white"
           @click="handleAddToCart"
         >
-          Add to cart
+          Add To Cart
         </VBtn>
-      </div>
-      <div class="w-1/2">
-        <!--
-          <VBtn
-          color="#242a64"
-          prepend-icon="mdi-plus"
-          class="text-white"
-          >
-          Sales
-          </VBtn>
-        -->
       </div>
     </div>
   </div>

@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
-import LabeledSwitch from '../../Custom/Switches/LabeledSwitch.vue'
-import CarInfo from '../Results/CarInfo.vue'
-import { PLATE_NUMBER } from '../../../composables/constant'
+import axios from 'axios'
+import { VIN_DOMAIN } from '../../../composables/constant'
 
-const router = useRouter()
-
-const plate: Ref<string> = ref('')
+const vinInput: Ref<string> = ref('')
 const error: Ref<string> = ref('')
-const serie: Ref<string> = ref('TU')
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const carData: Ref<any> = ref(null)
 const loading: Ref<boolean> = ref(false)
 const noDataFound: Ref<boolean> = ref(false)
 
-const setVehiclePlateType = (value: string) => {
-  serie.value = value
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const carData: Ref<any> = ref(null)
 
-const handleSearchByPlate = async () => {
-  if (plate.value === '') {
-    error.value = 'Plate number is required'
+const router = useRouter()
+
+const hadleSearchByVin = async () => {
+  loading.value = true
+  if (vinInput.value === '') {
+    error.value = 'VIN number is required'
+
+    return
+  }
+  if (vinInput.value.length < 17) {
+    error.value = 'VIN number is 17 characters long'
 
     return
   }
@@ -31,10 +31,9 @@ const handleSearchByPlate = async () => {
   try {
     loading.value = true
 
-    const response = await axios.get(PLATE_NUMBER, {
+    const response = await axios.get(VIN_DOMAIN, {
       params: {
-        platenum: plate.value,
-        serie: serie.value,
+        vin: vinInput.value,
       },
     })
 
@@ -74,21 +73,14 @@ const handleSearchByPlate = async () => {
 
 <template>
   <div class="vehicle-search">
-    <div>
-      <LabeledSwitch
-        v-model.trim="serie"
-        :titles="['TU', 'RS']"
-        @set-switch-value="setVehiclePlateType"
-      />
-    </div>
-    <div class="w-full flex flex-col md:flex-row flex-wrap gap-4 md:gap-0">
+    <div class="w-full flex flex-col md:flex-row flex-wrap gap-4">
       <div class="w-full md:w-1/3">
-        <label>Search by Plate</label>
-        <div class="flex flex-wrap">
+        <label>Search by Vin</label>
+        <div class="vin-input">
           <ElInput
-            v-model="plate"
-            :placeholder="`156-${serie}-2999`"
-            class="w-full"
+            v-model.trim="vinInput"
+            placeholder="WAUBH54B11N111054"
+            class="input-with-btn"
           />
         </div>
         <p
@@ -103,7 +95,7 @@ const handleSearchByPlate = async () => {
       <ElButton
         class="btn"
         icon="search"
-        @click="handleSearchByPlate"
+        @click="hadleSearchByVin"
       >
         Search
       </ElButton>
@@ -119,8 +111,8 @@ const handleSearchByPlate = async () => {
         indeterminate
       />
     </div>
-    <div v-if="carData">
-      <CarInfo :car-data="carData" />
+    <div v-if="noDataFound">
+      <p>NO DATA FOUND</p>
     </div>
   </div>
 </template>

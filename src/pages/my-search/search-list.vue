@@ -17,6 +17,14 @@ const handleSaerchCategoryInputFocus = (): void => {
 
 <template>
   <div class="bg-[#f1f1fc] dark:bg-slate-800 p-4 space-y-4">
+    <VBtn
+      prepend-icon="mdi-arrow-left"
+      variant="text"
+      class="hover: hover:bg-[#a9bdf1] hover:text-white"
+      @click="$router.go(-1)"
+    >
+      Go Back
+    </VBtn>
     <div>
       <HomeHeader
         :search-categories-visible="searchCategoriesVisible"

@@ -331,6 +331,8 @@ declare module 'vue' {
     DemoTooltipTransition: typeof import('./src/views/demos/components/tooltip/DemoTooltipTransition.vue')['default']
     DemoTooltipVModelSupport: typeof import('./src/views/demos/components/tooltip/DemoTooltipVModelSupport.vue')['default']
     DialogCloseBtn: typeof import('./src/@core/components/DialogCloseBtn.vue')['default']
+    ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']
+    ElBreadcrumbItem: typeof import('element-plus/es')['ElBreadcrumbItem']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCol: typeof import('element-plus/es')['ElCol']
     ElIcon: typeof import('element-plus/es')['ElIcon']
@@ -362,5 +364,8 @@ declare module 'vue' {
     UpgradeToPro: typeof import('./src/components/UpgradeToPro.vue')['default']
     UserInfoEditDialog: typeof import('./src/components/dialogs/UserInfoEditDialog.vue')['default']
     UserUpgradePlanDialog: typeof import('./src/components/dialogs/UserUpgradePlanDialog.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

@@ -123,20 +123,14 @@ const handleFilterItemClick = (item: string) => {
         v-for="result in searchResults"
         :key="result.id"
       >
-        <RouterLink
-          :to="{
-            name: 'MySearch',
-            params: { id: result.id, name: result.title },
-          }"
+        <PartOverViewVue
+          :id="result.id"
+          :title="result.title"
+          :status="result.status"
+          :image="result.image"
         >
-          <PartOverViewVue
-            :title="result.title"
-            :status="result.status"
-            :image="result.image"
-          >
-            <p>Some random description here</p>
-          </PartOverViewVue>
-        </RouterLink>
+          <p>Some random description here</p>
+        </PartOverViewVue>
       </div>
       <div class="text-center mt-5">
         <VPagination

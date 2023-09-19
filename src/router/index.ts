@@ -3,34 +3,38 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', redirect: '/home' },
+    // { path: '/', redirect: '/home' },
     {
       path: '/',
+      name: 'Home',
       component: () => import('../layouts/default.vue'),
+      redirect: '/home',
       children: [
         {
           path: 'home',
-          name: 'Home',
+          name: 'My Search',
           component: () => import('../pages/home.vue'),
+          children: [],
         },
         {
           path: 'my-search/search-list',
-          name: 'SearchList',
+          name: 'Search List',
           component: () => import('../pages/my-search/search-list.vue'),
           props: true,
         },
         {
           path: 'my-search/parts-categories',
-          name: 'PartsCategories',
+          name: 'Parts Categories',
           component: () => import('../pages/my-search/parts-categories.vue'),
           props: true,
         },
         {
           path: 'my-search/:name/:id',
-          name: 'MySearch',
+          name: 'My Search Details',
           component: () => import('../pages/my-search/search-product.vue'),
           props: true,
         },
+
         {
           path: 'account-settings',
           component: () => import('../pages/account-settings.vue'),

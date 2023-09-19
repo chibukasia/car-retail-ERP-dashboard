@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SearchCategories from '../../components/Custom/Results/SearchCategories.vue'
+import SearchCategories from '../../views/home/components/SearchCategories.vue'
 import HomeHeader from '@/components/Custom/Headers/HomeHeader.vue'
 
 const searchCategoriesVisible: Ref<boolean> = ref(false)
@@ -15,6 +15,14 @@ const handleSaerchCategoryInputFocus = (): void => {
 
 <template>
   <div class="bg-[#f1f1fc] space-y-4">
+    <VBtn
+      prepend-icon="mdi-arrow-left"
+      variant="text"
+      class="hover: hover:bg-[#a9bdf1] hover:text-white"
+      @click="$router.go(-1)"
+    >
+      Go Back
+    </VBtn>
     <div>
       <HomeHeader
         :search-categories-visible="searchCategoriesVisible"

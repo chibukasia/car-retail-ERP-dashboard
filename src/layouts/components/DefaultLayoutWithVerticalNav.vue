@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import type { Ref } from 'vue'
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import VerticalNavSectionTitle from '@/@layouts/components/VerticalNavSectionTitle.vue'
 import VerticalNavLayout from '@layouts/components/VerticalNavLayout.vue'
 import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
@@ -7,6 +10,17 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
 // import Footer from '@/layouts/components/Footer.vue'
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import UserProfile from '@/layouts/components/UserProfile.vue'
+import useCartStore from '@/store/cart'
+
+const route = useRoute()
+const store = useCartStore()
+
+const routeItems: Ref<any[]> = ref([route.matched])
+
+watchEffect(() => {
+  routeItems.value = route.matched
+  console.log(routeItems.value)
+})
 </script>
 
 <template>
@@ -27,19 +41,30 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
           class="d-flex align-center cursor-pointer"
           style="user-select: none;"
         >
-          <!-- 👉 Search Trigger button -->
-          <IconBtn>
-            <VIcon icon="bx-search" />
-          </IconBtn>
-
-          <span class="d-none d-md-flex align-center text-disabled">
-            <span class="me-3">Search</span>
-            <span class="meta-key">&#8984;K</span>
-          </span>
+          <ElBreadcrumb separator="/">
+            <ElBreadcrumbItem
+              v-for="item in routeItems"
+              :key="item.name"
+              :href="item.path"
+              :to="item.path"
+            >
+              {{ item.name }}
+            </ElBreadcrumbItem>
+          </ElBreadcrumb>
         </div>
 
         <VSpacer />
-
+        <IconBtn
+          class="text-none"
+          stacked
+        >
+          <VBadge
+            :content="store.cartItems.length"
+            color="error"
+          >
+            <VIcon>mdi-cart</VIcon>
+          </VBadge>
+        </IconBtn>
         <IconBtn class="me-2">
           <VIcon icon="bx-bell" />
         </IconBtn>

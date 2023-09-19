@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { } from 'vue'
 import ManualSearch from '../../../components/Custom/Forms/ManualSearch.vue'
-import VehicleSearch from '../../../components/Custom/Forms/VehicleSearch.vue'
+import SearchByVin from '../../../components/Custom/Forms/SearchByVin.vue'
 import SearchByPlate from '../../../components/Custom/Forms/SearchByPlate.vue'
+import SearchByBrand from '../../../components/Custom/Forms/SearchByBrand.vue'
 
 defineProps({
   isCommercial: Boolean,
@@ -30,7 +31,7 @@ defineProps({
           <span>Search By VIN</span>
         </span>
       </template>
-      <VehicleSearch />
+      <SearchByVin />
     </ElTabPane>
     <ElTabPane>
       <template #label>
@@ -44,6 +45,17 @@ defineProps({
           :is-commercial="isCommercial"
           :is-personal="isPersonal"
         />
+      </div>
+    </ElTabPane>
+    <ElTabPane>
+      <template #label>
+        <span class="blue-text flex items-center gap-3">
+          <ElIcon :size="18"><Search /></ElIcon>
+          <span>Search By Brand</span>
+        </span>
+      </template>
+      <div>
+        <SearchByBrand />
       </div>
     </ElTabPane>
   </ElTabs>
