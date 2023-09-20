@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { defineProps } from 'vue'
 import SearchCategories from '../../views/home/components/SearchCategories.vue'
 import HomeHeader from '@/components/Custom/Headers/HomeHeader.vue'
+
+const props = defineProps(['id'])
 
 const searchCategoriesVisible: Ref<boolean> = ref(false)
 
@@ -33,7 +36,7 @@ const handleSaerchCategoryInputFocus = (): void => {
     </div>
     <hr>
     <div class="w-[100%] m-auto">
-      <SearchCategories />
+      <SearchCategories :car-id="props.id" />
     </div>
   </div>
 </template>

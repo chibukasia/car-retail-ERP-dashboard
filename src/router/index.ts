@@ -17,19 +17,19 @@ const router = createRouter({
           children: [],
         },
         {
-          path: 'my-search/search-list',
+          path: 'my-search/search-list/:categoryId',
           name: 'Search List',
           component: () => import('../pages/my-search/search-list.vue'),
           props: true,
         },
         {
-          path: 'my-search/parts-categories',
+          path: 'my-search/parts-categories/:id',
           name: 'Parts Categories',
           component: () => import('../pages/my-search/parts-categories.vue'),
           props: true,
         },
         {
-          path: 'my-search/:name/:id',
+          path: 'my-search/:id/:artNumber/:supId',
           name: 'My Search Details',
           component: () => import('../pages/my-search/search-product.vue'),
           props: true,

@@ -1,36 +1,17 @@
 <script setup lang="ts">
+// eslint-disable-next-line regex/invalid
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import PartDetailsCard from '../cards/PartDetailsCard.vue'
 import { SINGLE_ARTICLE } from '@/composables/constant'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const partData: Ref<any> = ref({
-  id: 1,
-  title: 'ELRING 243.600',
-  slug: 'Seal Ring, oil drain plug',
-  eanCode: 2434,
-  price: 432,
-  status: 'Normal',
-  deliveryUnit: 3,
-  images: [
-    'https://media-aftermarket.schaeffler.com/__image/a/412642/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile',
-    'https://media-aftermarket.schaeffler.com/__image/a/412643/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile',
-    'https://media-aftermarket.schaeffler.com/__image/a/412638/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile',
-  ],
-  articleAttributes: [
-    { name: 'Manufacturer Restriction', value: 'Nippon Thermostat' },
-    { name: 'Inner Diameter [mm]', value: 14 },
-    { name: 'Outer Diameter [mm]', value: 22 },
-    { name: 'Thickness [mm]', value: 2 },
-    { name: 'Material', value: 'Aluminium' },
-    { name: 'Shape', value: ' A-Shape' },
-    { name: 'DIN/ISO', value: 7603 },
-    { name: 'Refrigerant', value: 3.45 },
-  ],
-})
+const props = defineProps(['artId', 'artNumber', 'supId'])
 
 const articleData: Ref<any> = ref(null)
+const articleCriterias: Ref<{ CRITERIA_NAME: string; CRITERIA_VALUE: string }[]> = ref([])
+const documents: Ref<{ ART_MEDIA_TYPE: string; ART_MEDIA_SOURCE: string }[]> = ref([])
+const specifications: Ref<any[]> = ref([])
+const loading: Ref<boolean> = ref(false)
 
 const quantity: Ref<number> = ref(1)
 
@@ -50,20 +31,28 @@ const handleAddToCart = () => {
 
 onMounted(async () => {
   try {
+    loading.value = true
+
     const response = await axios.get(SINGLE_ARTICLE, {
       params: {
-        ART_ARTICLE_NR: '',
-        ART_ID: '',
-        SUP_ID: '',
+        ART_ARTICLE_NR: props.artNumber,
+        ART_ID: props.artId,
+        SUP_ID: props.supId,
       },
     })
 
     const responseData = response.data
 
-    articleData.value = responseData.data
+    console.log('RESPOS:', responseData.data.details)
+    articleData.value = responseData.data.details
+    articleCriterias.value = responseData.data.criterias
+    documents.value = responseData.data.documents
+    specifications.value = responseData.data.specifications
+    loading.value = false
   }
   catch (error: any) {
     console.log(error)
+    loading.value = false
     if (error.response) {
       console.log(error)
     }
@@ -80,39 +69,64 @@ onMounted(async () => {
     }
   }
 })
+
+const eancode = computed(() => {
+  return articleData.value && articleData.value.EAN_NUMBERS.split(' ')
+})
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div v-loading.fullscreen.lock="loading" />
+  <div
+    v-if="articleData"
+    class="space-y-4"
+  >
     <div class="pt-4">
       <h2 class="font-bold blue-text text-lg">
-        {{ partData.title }}
+        {{ articleData.ART_SUP_BRAND }}
       </h2>
-      <p>{{ partData.slug }}</p>
+      <p>{{ }}</p>
     </div>
     <div class="bg-white shadow-md p-5 rounded-md">
       <PartDetailsCard
-        :images="partData.images"
-        :ean-code="partData.eanCode"
-        :status="partData.status"
-        :delivery-unit="partData.deliveryUnit"
+        :images="[articleData.ART_MEDIA_FILE_NAME, documents[0].ART_MEDIA_SOURCE]"
+        :ean-code="eancode[1]"
+        :status="articleData.ART_STATUS_TEXT"
+        :delivery-unit="articleData.ACS_PACK_UNIT"
       />
     </div>
-    <div class="bg-white shadow-md rounded-md p-5">
-      <div class="w-full sm:w-full md:w-1/2 flex flex-col gap-4">
+    <div class="bg-white shadow-md rounded-md p-5 flex flex-col md:flex-row">
+      <div v-if="articleCriterias.length > 0" class="w-full sm:w-full md:w-1/2 flex flex-col gap-4">
         <h2 class="font-bold text-2xl blue-text">
           Article Attributes
         </h2>
         <div
-          v-for="attr in partData.articleAttributes"
-          :key="attr.name"
+          v-for="attr in articleCriterias"
+          :key="attr.CRITERIA_NAME"
           class="w-full flex"
         >
           <div class="w-1/2">
-            <h3>{{ attr.name }}</h3>
+            <h3>{{ attr.CRITERIA_NAME }}</h3>
           </div>
           <div class="w-1/2">
-            <p>{{ attr.value }}</p>
+            <p>{{ attr.CRITERIA_VALUE }}</p>
+          </div>
+        </div>
+      </div>
+      <div v-if="specifications.length > 0" class="w-full sm:w-full md:w-1/2 flex flex-col gap-4">
+        <h2 class="font-bold text-2xl blue-text">
+          Vehicle Specifications
+        </h2>
+        <div
+          v-for="attr in specifications"
+          :key="attr.CRITERIA_NAME"
+          class="w-full flex"
+        >
+          <div class="w-1/2">
+            <h3>{{ attr.CRITERIA_NAME }}</h3>
+          </div>
+          <div class="w-1/2">
+            <p>{{ attr.CRITERIA_VALUE }}</p>
           </div>
         </div>
       </div>

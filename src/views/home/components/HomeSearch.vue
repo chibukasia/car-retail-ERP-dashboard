@@ -4,6 +4,7 @@ import ManualSearch from '../../../components/Custom/Forms/ManualSearch.vue'
 import SearchByVin from '../../../components/Custom/Forms/SearchByVin.vue'
 import SearchByPlate from '../../../components/Custom/Forms/SearchByPlate.vue'
 import SearchByBrand from '../../../components/Custom/Forms/SearchByBrand.vue'
+import SearchByPartNumber from '@/components/Custom/Forms/SearchByPartNumber.vue'
 
 defineProps({
   isCommercial: Boolean,
@@ -45,6 +46,17 @@ defineProps({
           :is-commercial="isCommercial"
           :is-personal="isPersonal"
         />
+      </div>
+    </ElTabPane>
+    <ElTabPane>
+      <template #label>
+        <span class="blue-text flex items-center gap-3">
+          <ElIcon :size="18"><Search /></ElIcon>
+          <span>Search By Part Number</span>
+        </span>
+      </template>
+      <div>
+        <SearchByPartNumber />
       </div>
     </ElTabPane>
     <ElTabPane>

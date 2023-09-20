@@ -3,6 +3,13 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import SearchProductList from '@/components/Custom/Results/SearchProductList.vue'
 import HomeHeader from '@/components/Custom/Headers/HomeHeader.vue'
+import useCarStore from '@/store/car'
+
+const props = defineProps(['categoryId'])
+const store = useCarStore()
+
+console.log(props.categoryId)
+console.log(store.carCategories)
 
 const searchCategoriesVisible: Ref<boolean> = ref(false)
 
@@ -34,6 +41,6 @@ const handleSaerchCategoryInputFocus = (): void => {
       />
     </div>
     <hr>
-    <SearchProductList />
+    <SearchProductList :search-tree-id="props.categoryId" />
   </div>
 </template>

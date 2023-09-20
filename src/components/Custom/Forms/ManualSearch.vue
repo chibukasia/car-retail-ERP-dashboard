@@ -99,7 +99,7 @@ const handleManualSearch = () => {
 }
 
 const handleRedirect = () => {
-  router.push({ name: 'Parts Categories' })
+  router.push({ name: 'Parts Categories', params: { id: car.value } })
 }
 
 const handleTypeClick = (button: IButton) => {
@@ -128,6 +128,7 @@ const handleTypeClick = (button: IButton) => {
 
   currentButton.value = button.title
   selectedType.value = button.type
+  store.setCarType(selectedType.value)
 }
 
 watchEffect(async () => await getManufacturers(selectedType.value))

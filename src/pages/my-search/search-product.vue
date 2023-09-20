@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import SearchProductDetails from '../../components/Custom/Results/SearchProductDetails.vue'
 
-defineProps(['id'])
+const props = defineProps(['id', 'artNumber', 'supId'])
 </script>
 
 <template>
@@ -17,7 +17,7 @@ defineProps(['id'])
     </VBtn>
     <div class=" w-full md:w-[80%] mx-auto">
       <div class="space-y-4">
-        <SearchProductDetails />
+        <SearchProductDetails :art-id="props.id" :art-number="props.artNumber" :sup-id="props.supId"/>
       </div>
     </div>
   </div>

@@ -5,6 +5,10 @@ import { ref } from 'vue'
 import axios from 'axios'
 import PartOverViewVue from '../cards/PartOverView.vue'
 import { ARTICLES_DOMAIN } from '@/composables/constant'
+import useCarStore from '@/store/car'
+
+const props = defineProps(['searchTreeId'])
+const store = useCarStore()
 
 const searchResults: Ref<
   { id: string | number; title: string; status: string; image: string }[]
@@ -75,12 +79,13 @@ onMounted(async () => {
   try {
     const response = await axios.get(ARTICLES_DOMAIN, {
       params: {
-        strId: '',
+        strid: props.searchTreeId,
       },
     })
 
     const responseData = response.data
 
+    console.log(responseData)
     searchResults.value = responseData.data
   }
   catch (e) {
