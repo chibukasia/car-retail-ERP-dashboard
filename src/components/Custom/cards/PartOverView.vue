@@ -3,7 +3,7 @@
 import { useRouter } from 'vue-router'
 import useCartStore from '../../../store/cart'
 
-const props = defineProps(['image', 'brand', 'productName', 'id', 'productGroup', 'artNumber', 'supId'])
+const props = defineProps(['image', 'title', 'status', 'id'])
 
 const router = useRouter()
 const store = useCartStore()
@@ -15,13 +15,13 @@ const cartObject: Ref<any> = ref({
 })
 
 const handleAddToCart = () => {
-  cartObject.value = { ...cartObject.value, name: props.productName }
+  cartObject.value = { ...cartObject.value, name: props.title }
   store.addToCart(cartObject.value)
   console.log(cartObject.value)
 }
 
 const handleViewDetails = () => {
-  router.push({ name: 'My Search Details', params: { id: props.id, artNumber: props.artNumber, supId: props.supId } })
+  router.push({ name: 'My Search Details', params: { id: props.id, name: props.title } })
 }
 </script>
 
@@ -40,10 +40,10 @@ const handleViewDetails = () => {
 
     <div class="w-full md:2/3 space-y-4 py-3">
       <h3 class="font-bold">
-        {{ props.productName }}
+        {{ props.title }}
       </h3>
-      <p>SUPPLIER BRAND: {{ props.brand }}</p><hr>
-      <p>PRODUCT GROUP: {{ props.productGroup }}</p><hr>
+      <p>Article status: {{ props.status }}</p><hr>
+      <slot />
       <div class="w-full flex flex-col md:flex-row gap-2 md:gap-8">
         <VBtn
           color="#2d4aae"
