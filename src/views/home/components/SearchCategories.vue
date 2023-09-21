@@ -11,27 +11,30 @@ const props = defineProps(['carId'])
 const store = useCarStore()
 const router = useRouter()
 
-// const searchResults: Ref<{ id: string | number; name: string; image: string }[]> = ref([
-//   { id: 1, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412642/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 2, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412643/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 3, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412664/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 4, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412684/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 5, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412669/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 6, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412657/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 7, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412653/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 8, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412638/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 9, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412653/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 10, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412638/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-//   { id: 11, name: 'Sample name', image: 'https://media-aftermarket.schaeffler.com/__image/a/412669/alias/xxs/ar/16-9/fn/REPXPERT-Catalog-AssemblyGroup-Tile' },
-// ])
-
 const categoryTitle: Ref<string> = ref('Browse Assembly Groups')
-const page: Ref<number> = ref(1)
+
 const carCategoriesData: Ref<any> = ref(null)
 const loading: Ref<boolean> = ref(false)
 
-const handleRedirect = (treeID: string) => {
-  router.push({ name: 'Search List', params: { categoryId: treeID } })
+const nestedCategories: Ref<any[]> = ref([])
+
+const handleRedirect = (treeID: string, treeName: string) => {
+  router.push({ name: 'Search List', params: { categoryId: treeID, groupName: treeName } })
+}
+
+const getFirstKey = (obj: any) => {
+  for (const key in obj) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (obj.hasOwnProperty(key))
+      return key
+  }
+
+  return null
+}
+
+const onTabClick = (key: string | number) => {
+  nestedCategories.value = carCategoriesData.value[key]
+  console.log(nestedCategories.value)
 }
 
 onMounted(async () => {
@@ -56,6 +59,13 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+watch(carCategoriesData, () => {
+  const firstKey = getFirstKey(carCategoriesData.value)
+
+  firstKey !== null ? nestedCategories.value = carCategoriesData.value[firstKey] : nestedCategories.value = []
+  console.log(nestedCategories.value)
+})
 </script>
 
 <template>
@@ -70,44 +80,57 @@ onMounted(async () => {
       </h3>
     </div>
     <div>
-      <div class="flex flex-wrap flex-col md:flex-row gap-6 w-full ">
-        <div
-          v-for="(value, key) in carCategoriesData"
-          :key="key"
-          class="cursor-pointer w-full md:w-80"
-          @click="handleRedirect(value[0].ROOT_NODE_STR_ID)"
-        >
-          <!--
-            <RouterLink :to="{ name: 'Search List' }">
-            <PartCard
-            :name="result.name"
-            :image="result.image"
-            />
-            </RouterLink>
-          -->
+      <div class="flex flex-wrap flex-col justify-center md:flex-row gap-6 w-full ">
+        <div class="w-full">
+          <ElTabs
+            tab-position="top"
+            class="demo-tabs"
+            type="border-card"
+          >
+            <ElTabPane
+              v-for="(values, key) in carCategoriesData"
+              :key="key"
+              :label="key as unknown as string"
+              @click="onTabClick(key)"
+            >
+              <div class="w-[72] flex flex-wrap gap-5">
+                <VCard
 
-          <VCard>
-            <p class="text-lg font-bold text-center p-5">
-              {{ key }}
-            </p>
-            <VCardActions class="justify-center">
-              <VBtn
-                class="hover:text-white"
-                @click="handleRedirect(value[0].ROOT_NODE_STR_ID)"
-              >
-                View Related Articles
-              </VBtn>
-            </VCardActions>
-          </VCard>
+                  v-for="item in values"
+                  :key="item.NODE_1_STR_ID"
+                  width="270"
+                >
+                  <p class="text-lg font-bold text-center p-5">
+                    {{ item.NODE_3_TEXT ? item.NODE_3_TEXT : item.NODE_2_TEXT ? item.NODE_2_TEXT : item.NODE_1_TEXT }}
+                  </p>
+                  <VCardActions class="justify-center">
+                    <VBtn
+                      class="hover:text-white"
+                      @click="handleRedirect(item.NODE_2_STR_ID ? item.NODE_2_STR_ID : item.NODE_1_STR_ID ? item.NODE_1_STR_ID : item.ROOT_NODE_STR_ID, item.ROOT_NODE_TEXT)"
+                    >
+                      View Related Articles
+                    </VBtn>
+                  </VCardActions>
+                </VCard>
+              </div>
+            </ElTabPane>
+          </ElTabs>
         </div>
       </div>
     </div>
-    <div class="text-center mt-5">
-      <VPagination
-        v-model="page"
-        :length="2"
-        :total-visible="10"
-      />
-    </div>
   </div>
 </template>
+
+<style>
+.demo-tabs > .el-tabs__content {
+  padding: 32px;
+  color: #6b778c;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.el-tabs--right .el-tabs__content,
+.el-tabs--left .el-tabs__content {
+  height: 100%;
+}
+</style>

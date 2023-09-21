@@ -5,7 +5,7 @@ import SearchProductList from '@/components/Custom/Results/SearchProductList.vue
 import HomeHeader from '@/components/Custom/Headers/HomeHeader.vue'
 import useCarStore from '@/store/car'
 
-const props = defineProps(['categoryId'])
+const props = defineProps(['categoryId', 'groupName'])
 const store = useCarStore()
 
 console.log(props.categoryId)
@@ -41,6 +41,6 @@ const handleSaerchCategoryInputFocus = (): void => {
       />
     </div>
     <hr>
-    <SearchProductList :search-tree-id="props.categoryId" />
+    <SearchProductList :search-tree-id="props.categoryId" :group-name="props.groupName"/>
   </div>
 </template>

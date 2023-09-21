@@ -18,6 +18,20 @@ defineProps({
       <template #label>
         <span class="blue-text flex items-center gap-3">
           <ElIcon :size="18"><Search /></ElIcon>
+          <span>Manual Search</span>
+        </span>
+      </template>
+      <div>
+        <ManualSearch
+          :is-commercial="isCommercial"
+          :is-personal="isPersonal"
+        />
+      </div>
+    </ElTabPane>
+    <ElTabPane>
+      <template #label>
+        <span class="blue-text flex items-center gap-3">
+          <ElIcon :size="18"><Search /></ElIcon>
           <span>Search By Car Plate</span>
         </span>
       </template>
@@ -33,20 +47,6 @@ defineProps({
         </span>
       </template>
       <SearchByVin />
-    </ElTabPane>
-    <ElTabPane>
-      <template #label>
-        <span class="blue-text flex items-center gap-3">
-          <ElIcon :size="18"><Search /></ElIcon>
-          <span>Manual Search</span>
-        </span>
-      </template>
-      <div>
-        <ManualSearch
-          :is-commercial="isCommercial"
-          :is-personal="isPersonal"
-        />
-      </div>
     </ElTabPane>
     <ElTabPane>
       <template #label>
