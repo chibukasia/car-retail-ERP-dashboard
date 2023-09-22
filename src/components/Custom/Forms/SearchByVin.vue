@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+// eslint-disable-next-line regex/invalid
+import axios from 'axios'
+import { isEmpty } from 'lodash'
+import CarInfo from '../Results/CarInfo.vue'
 import useVins from '@/composables/vins'
+import useCarStore from '@/store/car'
+import { CAR_INFO } from '@/composables/constant'
 
 const router = useRouter()
+const store = useCarStore()
 
 const { loading, error, searchData, noDataFound, getByVins } = useVins()
 
 const vinInput: Ref<string> = ref('')
+const carData: Ref<any> = ref(null)
 
 const hadleSearchByVin = async () => {
   loading.value = true
@@ -23,8 +31,34 @@ const hadleSearchByVin = async () => {
   }
 
   await getByVins(vinInput.value)
+}
+
+const handleRedirect = async () => {
   await searchData.value && router.push({ name: 'Parts Categories', params: { id: searchData.value.carId } })
 }
+
+watch(searchData, async () => {
+  try {
+    loading.value = true
+
+    const response = await axios.get(CAR_INFO, {
+      params: {
+        car: searchData.value.carId,
+        typeCar: store.carType,
+      },
+    })
+
+    const data = await response.data
+
+    carData.value = data.data
+    store.setCarInfo(carData.value)
+    loading.value = false
+  }
+  catch (err) {
+    console.log(err)
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -66,6 +100,22 @@ const hadleSearchByVin = async () => {
         color="primary"
         indeterminate
       />
+    </div>
+      <div v-if="!isEmpty(carData)">
+      <CarInfo />
+      <div
+        v-if="$route.path === '/home'"
+        class="pt-5"
+      >
+        <VBtn
+          color="#2d4aae"
+          append-icon="mdi-arrow-right"
+          class="text-white"
+          @click="handleRedirect"
+        >
+          Go to categories
+        </VBtn>
+      </div>
     </div>
     <div v-if="noDataFound">
       <p>NO DATA FOUND</p>

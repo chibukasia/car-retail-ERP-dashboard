@@ -1,21 +1,15 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 // eslint-disable-next-line regex/invalid
-import useCarStore from '@/store/car'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import useCars from './cars'
 import { VIN_DOMAIN } from './constant'
-
-const store = useCarStore()
 
 export default function useVins() {
   const loading: Ref<boolean> = ref(false)
   const error: Ref<string> = ref('')
   const noDataFound: Ref<boolean> = ref(false)
   const searchData: Ref<any> = ref(null)
-
-  const {getCarInfo,carData} = useCars()
 
   const getByVins = async (vinInput: string) => {
     try {
@@ -36,9 +30,6 @@ export default function useVins() {
         return
       }
 
-      await getCarInfo({car:responseData.data.carId,selectedType:'PC'})
-      console.log(carData.value)
-      store.setCarInfo(carData.value)
       searchData.value = responseData.data
       loading.value = false
     }
