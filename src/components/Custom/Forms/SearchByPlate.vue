@@ -9,17 +9,32 @@ const router = useRouter()
 
 const { carData, error, loading, getByPlates, noDataFound } = usePlates()
 const plate: Ref<string> = ref('')
-const serie: Ref<string> = ref('TU')
+const serie: Ref<string> = ref('')
+const plateType: Ref<string> = ref('TU')
 
 const setVehiclePlateType = (value: string) => {
-  serie.value = value
+  plateType.value = value
 }
 
 const handleSearchByPlate = async () => {
-  if (plate.value === '') {
-    error.value = 'Plate number is required'
+  if (plateType.value === 'TU') {
+    if (plate.value === '') {
+      error.value = 'Plate number is required'
 
-    return
+      return
+    }
+    if (serie.value === '') {
+      error.value = 'Serie code is required'
+
+      return
+    }
+  }
+  else {
+    if (plate.value === '') {
+      error.value = 'Plate number is required'
+
+      return
+    }
   }
 
   await getByPlates({ plate: plate.value, serie: serie.value })
@@ -31,42 +46,45 @@ const handleSearchByPlate = async () => {
   <div class="vehicle-search">
     <div>
       <LabeledSwitch
-        v-model.trim="serie"
+        v-model.trim="plateType"
         :titles="['TU', 'RS']"
         @set-switch-value="setVehiclePlateType"
       />
     </div>
     <div class="w-full flex flex-col md:flex-row flex-wrap gap-4 md:gap-0">
-      <div class="w-full md:w-6/6">Search by Plate</div>
-      <div class="w-full md:w-2/6">
-       
-        <div class="flex flex-wrap">
-          <ElInput
-            v-model="plate"
-            :placeholder="(serie == 'TU')?`Series : 156`:'999999'"
-            class="w-full"
-           >
-           <template #append>
-            <span >{{ serie }}</span>  
-           </template>
-           </ElInput>
-        </div>
-        <p
-          v-if="error"
-          class="text-red-500 text-sm"
+      <div class="w-full md:w-1/3">
+        <label>Search by Plate</label>
+        <div
+          v-if="plateType === 'RS'"
+          class="flex flex-wrap"
         >
-          {{ error }}
-        </p>
-      </div>
-      
-      <div class="w-full md:w-2/6"  v-if="serie == 'TU'">
-        
-        <div class="flex flex-wrap">
           <ElInput
             v-model="plate"
-            :placeholder="`Number : 2999`"
+            placeholder="156-2999"
             class="w-full"
           />
+        </div>
+        <div
+          v-if="plateType === 'TU'"
+          class="flex items-center border w-fit bg-[#F5F5F5] rounded-md"
+        >
+          <div class="">
+            <input
+              v-model="serie"
+              placeholder="Serie: 100"
+              class="input-plate bg-white h-10 px-2"
+            >
+          </div>
+          <div class="bg-[#F5F5F5] py-[5px] px-5">
+            <p>TU</p>
+          </div>
+          <div class="">
+            <input
+              v-model="plate"
+              placeholder="Number: 1111"
+              class="input-plate bg-white h-10 px-2"
+            >
+          </div>
         </div>
         <p
           v-if="error"
@@ -114,7 +132,15 @@ const handleSearchByPlate = async () => {
 .el-input {
     width: 100%;
 }
-
+.input-plate{
+  padding: 5px 3px;
+  border: none;
+  border-radius: 6px;
+  &:focus{
+    outline:0.5px solid #86b7fd;
+    border-radius: 6px;
+  }
+}
 label {
     padding: 5px 0px;
     margin-bottom: 5px;

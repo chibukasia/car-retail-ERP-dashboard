@@ -8,7 +8,7 @@ import { SINGLE_ARTICLE } from '@/composables/constant'
 const props = defineProps(['artId', 'artNumber', 'supId'])
 
 const articleData: Ref<any> = ref(null)
-const articleCriterias: Ref<{ CRITERIA_NAME: string; CRITERIA_VALUE: string }[]> = ref([])
+const components: Ref<{ CRITERIA_NAME: string; CRITERIA_VALUE: string }[]> = ref([])
 const documents: Ref<{ ART_MEDIA_TYPE: string; ART_MEDIA_SOURCE: string }[]> = ref([])
 const specifications: Ref<any[]> = ref([])
 const loading: Ref<boolean> = ref(false)
@@ -45,7 +45,7 @@ onMounted(async () => {
 
     console.log('RESPOS:', responseData.data.details)
     articleData.value = responseData.data.details
-    articleCriterias.value = responseData.data.criterias
+    components.value = responseData.data.components
     documents.value = responseData.data.documents
     specifications.value = responseData.data.specifications
     loading.value = false
@@ -96,12 +96,15 @@ const eancode = computed(() => {
       />
     </div>
     <div class="bg-white shadow-md rounded-md p-5 flex flex-col md:flex-row">
-      <div v-if="articleCriterias.length > 0" class="w-full sm:w-full md:w-1/2 flex flex-col gap-4">
+      <div
+        v-if="components.length > 0"
+        class="w-full sm:w-full md:w-1/2 flex flex-col gap-4"
+      >
         <h2 class="font-bold text-2xl blue-text">
           Article Attributes
         </h2>
         <div
-          v-for="attr in articleCriterias"
+          v-for="attr in components"
           :key="attr.CRITERIA_NAME"
           class="w-full flex"
         >
@@ -113,7 +116,10 @@ const eancode = computed(() => {
           </div>
         </div>
       </div>
-      <div v-if="specifications.length > 0" class="w-full sm:w-full md:w-1/2 flex flex-col gap-4">
+      <div
+        v-if="specifications.length > 0"
+        class="w-full sm:w-full md:w-1/2 flex flex-col gap-4"
+      >
         <h2 class="font-bold text-2xl blue-text">
           Vehicle Specifications
         </h2>
