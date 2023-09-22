@@ -34,7 +34,6 @@ export default function usePlates() {
       carData.value = responseData.data
       loading.value = false
       store.setCarInfo(carData.value)
-      console.log(responseData.data)
     }
     catch (err: any) {
       console.log(err)
