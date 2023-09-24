@@ -27,7 +27,7 @@ watchEffect(() => {
   <VerticalNavLayout>
     <!-- 👉 navbar -->
     <template #navbar="{ toggleVerticalOverlayNavActive }">
-      <div class="d-flex h-100 align-center">
+      <div class="d-flex h-100 align-center justify-between">
         <!-- 👉 Vertical nav toggle in overlay mode -->
         <IconBtn
           class="ms-n3 d-lg-none"
@@ -54,7 +54,8 @@ watchEffect(() => {
         </div>
 
         <VSpacer />
-        <IconBtn
+        <div class="flex items-center">
+          <IconBtn
           class="text-none"
           stacked
         >
@@ -72,6 +73,8 @@ watchEffect(() => {
         <NavbarThemeSwitcher class="me-2" />
 
         <UserProfile />
+        </div>
+        
       </div>
     </template>
 
