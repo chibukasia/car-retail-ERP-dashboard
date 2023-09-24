@@ -3,7 +3,8 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import PartDetailsCard from '../cards/PartDetailsCard.vue'
-import { SINGLE_ARTICLE } from '@/composables/constant'
+import { S3_STORAGE_IMAGE, SINGLE_ARTICLE } from '@/composables/constant'
+import { checkIfImageExists } from '@/utils'
 
 const props = defineProps(['artId', 'artNumber', 'supId'])
 
@@ -12,15 +13,12 @@ const components: Ref<{ CRITERIA_NAME: string; CRITERIA_VALUE: string }[]> = ref
 const documents: Ref<{ ART_MEDIA_TYPE: string; ART_MEDIA_SOURCE: string }[]> = ref([])
 const specifications: Ref<any[]> = ref([])
 const loading: Ref<boolean> = ref(false)
+const imageUrl: Ref<string> = ref(`${S3_STORAGE_IMAGE}articles/article_img_not_found.png`)
 
 const quantity: Ref<number> = ref(1)
 
-const quantityIncreament = () => {
-  quantity.value++
-}
-
-const quantityDecreament = () => {
-  quantity.value--
+const handleChange = (value?: number) => {
+  console.log(value)
 }
 
 const handleAddToCart = () => {
@@ -70,8 +68,18 @@ onMounted(async () => {
   }
 })
 
+watch(articleData, async () => {
+  if (await checkIfImageExists(articleData.value.ART_MEDIA_FILE_NAME)) {
+    imageUrl.value = `${S3_STORAGE_IMAGE}articles/${articleData.value.ART_SUP_ID}/${articleData.value.ART_MEDIA_FILE_NAME}`
+  }
+  else {
+    imageUrl.value = `${S3_STORAGE_IMAGE}articles/article_img_not_found.png`
+    console.log(imageUrl.value)
+  }
+})
+
 const eancode = computed(() => {
-  return articleData.value && articleData.value.EAN_NUMBERS.split(' ')
+  return articleData.value.EAN_NUMBERS ? articleData.value.EAN_NUMBERS.split(' ') : ''
 })
 </script>
 
@@ -89,36 +97,17 @@ const eancode = computed(() => {
     </div>
     <div class="bg-white shadow-md p-5 rounded-md">
       <PartDetailsCard
-        :images="[articleData.ART_MEDIA_FILE_NAME, documents[0].ART_MEDIA_SOURCE]"
+        :image="imageUrl"
         :ean-code="eancode[1]"
         :status="articleData.ART_STATUS_TEXT"
         :delivery-unit="articleData.ACS_PACK_UNIT"
+        :article-data="articleData"
       />
     </div>
     <div class="bg-white shadow-md rounded-md p-5 flex flex-col md:flex-row">
       <div
-        v-if="components.length > 0"
-        class="w-full sm:w-full md:w-1/2 flex flex-col gap-4"
-      >
-        <h2 class="font-bold text-2xl blue-text">
-          Article Attributes
-        </h2>
-        <div
-          v-for="attr in components"
-          :key="attr.CRITERIA_NAME"
-          class="w-full flex"
-        >
-          <div class="w-1/2">
-            <h3>{{ attr.CRITERIA_NAME }}</h3>
-          </div>
-          <div class="w-1/2">
-            <p>{{ attr.CRITERIA_VALUE }}</p>
-          </div>
-        </div>
-      </div>
-      <div
         v-if="specifications.length > 0"
-        class="w-full sm:w-full md:w-1/2 flex flex-col gap-4"
+        class="w-full flex flex-col gap-4"
       >
         <h2 class="font-bold text-2xl blue-text">
           Vehicle Specifications
@@ -139,23 +128,12 @@ const eancode = computed(() => {
     </div>
     <div class="flex w-full bg-white shadow-md rounded-md p-5">
       <div class="w-1/2 flex items-center gap-3">
-        <VBtn
-          density="comfortable"
-          variant="text"
-          icon="mdi-minus"
-          class="bg-[#242a64] text-white"
-          :disabled="quantity <= 1"
-          @click="quantityDecreament"
-        />
-        <p class="border p-2 rounded-md text-lg text-black font-semibold">
-          {{ quantity }}
-        </p>
-        <VBtn
-          density="comfortable"
-          variant="text"
-          icon="mdi-plus"
-          class="bg-[#242a64] text-white"
-          @click="quantityIncreament"
+        <ElInputNumber
+          v-model="quantity"
+          :min="1"
+          :max="10"
+          class="mx-0"
+          @change="handleChange"
         />
       </div>
       <div class="w-1/2">

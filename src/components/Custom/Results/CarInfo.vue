@@ -1,17 +1,21 @@
 <!-- eslint-disable vue/require-prop-types -->
 <script setup lang="ts">
 import { pickBy } from 'lodash'
-import useCarStore from '../../../store/car'
 
-const store = useCarStore()
+const props = defineProps(['carDetails'])
+const carData: Ref<any> = ref(null)
 
 const newCarData = computed(() => {
-  return pickBy(store.cartInfo, (value: any) => value !== null)
+  return pickBy(props.carDetails ?? carData.value, (value: any) => value !== null)
+})
+
+onMounted(() => {
+  carData.value = JSON.parse(localStorage.getItem('carData') || '{}')
 })
 </script>
 
 <template>
-  <div v-if="store.cartInfo">
+  <div v-if="newCarData">
     <h2 class="pb-4 text-xl font-semibold">
       Car info
     </h2>

@@ -52,6 +52,10 @@ watch(searchData, async () => {
 
     carData.value = data.data
     store.setCarInfo(carData.value)
+
+    const jsonString = JSON.stringify(carData.value)
+
+    localStorage.setItem('carData', jsonString)
     loading.value = false
   }
   catch (err) {
@@ -101,7 +105,7 @@ watch(searchData, async () => {
         indeterminate
       />
     </div>
-      <div v-if="!isEmpty(carData)">
+    <div v-if="!isEmpty(carData)">
       <CarInfo />
       <div
         v-if="$route.path === '/home'"

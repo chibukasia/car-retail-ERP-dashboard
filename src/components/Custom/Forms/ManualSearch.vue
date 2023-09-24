@@ -21,6 +21,7 @@ interface IButton {
 }
 
 const router = useRouter()
+const route = useRoute()
 const store = useCarStore()
 const { getManufacturers, manufacturers, manufacturersLoading } = useManufacturers()
 const { getModels, models, modelsLoading } = useModels()
@@ -29,7 +30,6 @@ const { getCars, cars, carsLoading, carData } = useCars()
 const selectedType: Ref<string> = ref('PC')
 
 const buttons: Ref<IButton[]> = ref([
-  { title: 'Home', isActive: false, icon: 'fa-home', type: 'PC' },
   { title: 'PC', isActive: false, icon: 'fa-car', type: 'PC' },
   { title: 'Motorcycle', isActive: false, icon: 'fa-motorcycle', type: 'MTB' },
   { title: 'CV', isActive: false, icon: 'fa-bus-simple', type: 'CV' },
@@ -38,7 +38,7 @@ const buttons: Ref<IButton[]> = ref([
   { title: 'Axle', isActive: false, icon: 'fa-arrows-left-right', type: 'AXL' },
 ])
 
-const currentButton: Ref<string> = ref('Home')
+const currentButton: Ref<string> = ref('PC')
 
 const selectedManufacturer: Ref<string> = ref('')
 const car: Ref<string> = ref('')
@@ -84,9 +84,19 @@ watch(car, async () => {
 
     carData.value = data.data
     store.setCarInfo(carData.value)
+
+    const jsonString = JSON.stringify(carData.value)
+
+    localStorage.setItem('carData', jsonString)
     modelYear.value = dayjs(carData.value.PCS_CONSTRUCTION_INTERVAL_START).format('YYYY')
     fuelType.value = carData.value.PC_FUEL_TYPE
     loading.value = false
+
+    if (route.path !== '/home') {
+      router.push({ name: 'Parts Categories', params: { id: car.value } })
+
+      return
+    }
   }
   catch (err) {
     console.log(err)
@@ -95,7 +105,7 @@ watch(car, async () => {
 })
 
 watchEffect(() => {
-  loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value
+  loading.value = carsLoading.value || modelsLoading.value
 })
 </script>
 
@@ -148,9 +158,17 @@ watchEffect(() => {
           <ElOption
             v-for="item in models"
             :key="item.MS_ID"
-            :label="`${item.MS_NAME} Construction Year: ${dayjs(item.MS_CI_TO ? item.MS_CI_TO : item.MS_CI_FROM).format('YYYY/MM')}`"
-            :value="item.MS_ID"
-          />
+            :label="`${item.MS_NAME ?? item.ENG_CODE}    ${
+              item.MS_CI_FROM ? item.MS_CI_FROM.slice(0, 7).replace('-', '/') : ''
+            }${
+              item.MS_CI_TO ? ` - ${item.MS_CI_TO.slice(0, 7).replace('-', '/')}` : ''}`"
+            :value="item.MS_ID ?? item.ENG_ID"
+          >
+            <span style="display: inline;width: 100%;">{{ item.MS_NAME }}</span>
+              &nbsp;&nbsp;&nbsp;
+            <span v-if="item.MS_CI_FROM"> {{ item.MS_CI_FROM.slice(0, 7).replace('-', '/') }} </span>
+            <span v-if="item.MS_CI_TO"> -  {{ item.MS_CI_TO.slice(0, 7).replace('-', '/') }} </span>
+          </ElOption>
         </ElSelect>
         <p
           v-if="model === ''"
@@ -170,9 +188,18 @@ watchEffect(() => {
           <ElOption
             v-for="item in cars"
             :key="item.ELEMENT_ID"
-            :label="`${item.ELEMENT_NAME} KW: ${item.el3 ?? 'NA'} HP: ${item.el5 ?? 'NA'} ENG: ${item.el7 ?? 'NA'}`"
+            :label="`${item.ELEMENT_NAME}${item.el3 ? ` | ${  item.el3}` : ''
+            }${item.el4 ? ` | ${  item.el4}` : ''
+            }${item.el7 ? ` | ${  item.el7}` : ''}`
+            "
             :value="Number(item.ELEMENT_ID)"
-          />
+          >
+            <span>{{ item.ELEMENT_NAME }}</span>
+
+            <span v-if="item.el3"> | {{ item.el3 }}   </span>
+            <span v-if="item.el4"> | {{ item.el4 }}  </span>
+            <span v-if="item.el7"> | {{ item.el7 }}   </span>
+          </ElOption>
         </ElSelect>
         <p
           v-if="car === ''"
@@ -209,7 +236,7 @@ watchEffect(() => {
       </div>
     </div>
     <div v-if="!isEmpty(carData)">
-      <CarInfo />
+      <CarInfo :car-details="carData" />
       <div
         v-if="$route.path === '/home'"
         class="pt-5"

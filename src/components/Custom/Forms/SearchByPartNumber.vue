@@ -19,7 +19,7 @@ const handleSearchByPlate = async () => {
   }
 
   await getByPartNumber(partNumber.value)
-  await store.setArticleInfo(articleInfo.value)
+  store.setArticleInfo(articleInfo.value)
   await articleInfo.value && router.push({ name: 'My Search Details', params: { id: articleInfo.value.ART_ID, artNumber: articleInfo.value.ART_ARTICLE_NR, supId: articleInfo.value.ART_SUP_ID } })
 }
 </script>

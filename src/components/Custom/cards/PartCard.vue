@@ -4,7 +4,7 @@ defineProps(['name', 'image'])
 </script>
 
 <template>
-  <VCard class="mx-auto hover:brightness-75">
+  <VCard class="mx-auto hover:brightness-75" width="250">
     <VImg
       :src="image"
       height="150px"

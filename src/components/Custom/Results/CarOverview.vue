@@ -2,15 +2,38 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import CarInfo from '../Results/CarInfo.vue'
+import { checkIfImageExists } from '../../../utils'
 import HomeSearch from '@/views/home/components/HomeSearch.vue'
 import useCarStore from '@/store/car'
+import { S3_STORAGE_IMAGE } from '@/composables/constant'
 
+const props = defineProps(['carId'])
 const store = useCarStore()
 const show: Ref<boolean> = ref(false)
 const showType: Ref<string> = ref('car-info')
-const carImage: Ref<string> = ref('https://imgd.aeplcdn.com/370x208/n/cw/ec/142515/elevate-exterior-right-front-three-quarter-20.jpeg?isig=0&q=80')
+const carImage: Ref<string> = ref('')
 
-const carData: Ref<any> = ref(store.cartInfo)
+const carData: Ref<any> = ref(null)
+
+onMounted(() => {
+  carData.value = JSON.parse(localStorage.getItem('carData') || '{}')
+  console.log(carData.value)
+})
+
+watchEffect(() => {
+  carData.value = JSON.parse(localStorage.getItem('carData') || '{}')
+  // eslint-disable-next-line no-unused-expressions
+  store.cartInfo
+  console.log(carData.value)
+})
+
+watchEffect(async () => {
+  if (await checkIfImageExists(`${S3_STORAGE_IMAGE}carImages/${props.carId}.jpg`))
+    carImage.value = `${S3_STORAGE_IMAGE}carImages/${props.carId}.jpg`
+
+  else
+    carImage.value = 'https://eu2.contabostorage.com/bdb7016af8184ca180ba5a37bd0381ac:otsimages/carImages/notfound.jpeg'
+})
 
 const handleChangeSelection = () => {
   if (show.value) {

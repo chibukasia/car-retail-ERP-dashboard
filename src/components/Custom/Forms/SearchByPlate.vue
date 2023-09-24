@@ -18,13 +18,13 @@ const setVehiclePlateType = (value: string) => {
 
 const handleSearchByPlate = async () => {
   if (plateType.value === 'TU') {
-    if (plate.value === '') {
-      error.value = 'Plate number is required'
+    if (serie.value === '') {
+      error.value = 'Serie code is required'
 
       return
     }
-    if (serie.value === '') {
-      error.value = 'Serie code is required'
+    if (plate.value === '') {
+      error.value = 'Plate number is required'
 
       return
     }
@@ -38,7 +38,10 @@ const handleSearchByPlate = async () => {
   }
 
   await getByPlates({ plate: plate.value, serie: serie.value })
-  await carData.value && router.push({ name: 'Parts Categories', params: { id: carData.value.carId } })
+}
+
+const handleRedirect = () => {
+  router.push({ name: 'Parts Categories', params: { id: carData.value.carId } })
 }
 </script>
 
@@ -119,6 +122,19 @@ const handleSearchByPlate = async () => {
     </div>
     <div v-if="carData">
       <CarInfo />
+      <div
+        v-if="$route.path === '/home'"
+        class="pt-5"
+      >
+        <VBtn
+          color="#2d4aae"
+          append-icon="mdi-arrow-right"
+          class="text-white"
+          @click="handleRedirect"
+        >
+          Go to categories
+        </VBtn>
+      </div>
     </div>
   </div>
 </template>

@@ -1,3 +1,4 @@
+// API DOMAINS
 const DOMAIN = 'https://app.otospexerp.com/api'
 
 export const MANUFACTURERS_DOMAIN = `${DOMAIN}/manus`
@@ -21,3 +22,6 @@ export const ARTICLES_SEARCH_VIEW = `${DOMAIN}/articles_search_view`
 export const BRAND_SUBSECTION = `${DOMAIN}/get_sub_sections_by_brand`
 export const ARTICLE_BY_SUBSECTION = `${DOMAIN}/get_article_by_sub_section`
 export const CART_DATA = `${DOMAIN}/cart_data_email`
+
+// IMAGE DOMAINS
+export const S3_STORAGE_IMAGE = 'https://eu2.contabostorage.com/bdb7016af8184ca180ba5a37bd0381ac:otsimages/'

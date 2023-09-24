@@ -17,13 +17,13 @@ const router = createRouter({
           children: [],
         },
         {
-          path: 'my-search/search-list/:categoryId/:groupName',
+          path: 'my-search/search-list/:categoryId/:groupName/:carId',
           name: 'Search List',
           component: () => import('../pages/my-search/search-list.vue'),
           props: true,
         },
         {
-          path: 'my-search/parts-categories/:id',
+          path: 'my-search/parts-categories/:id/:category?',
           name: 'Parts Categories',
           component: () => import('../pages/my-search/parts-categories.vue'),
           props: true,
