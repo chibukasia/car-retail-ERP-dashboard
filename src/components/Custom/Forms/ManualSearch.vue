@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-irregular-whitespace -->
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
@@ -105,7 +106,11 @@ watch(car, async () => {
 })
 
 watchEffect(() => {
-  loading.value = carsLoading.value || modelsLoading.value
+  if (route.name === '/home')
+    loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value
+
+  else
+    loading.value = carsLoading.value || modelsLoading.value
 })
 </script>
 

@@ -40,7 +40,6 @@ const level2FilteredItems: Ref<ICategory[]> = ref([])
 const level3FilteredItems: Ref<ICategory[]> = ref([])
 const level4FilteredItems: Ref<ICategory[]> = ref([])
 const filterTitle: Ref<string> = ref('Categories')
-const searchValue: Ref<string> = ref('')
 
 const handleRedirect = (treeID: string, treeName: string) => {
   router.push({ name: 'Search List', params: { categoryId: treeID, groupName: treeName, carId: props.carId } })
