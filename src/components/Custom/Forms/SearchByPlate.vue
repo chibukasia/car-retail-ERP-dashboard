@@ -9,10 +9,10 @@ const router = useRouter()
 
 const { carData, error, loading, getByPlates, noDataFound } = usePlates()
 const plate: Ref<string> = ref('')
-const serie: Ref<string> = ref('TU')
-
+const paltetype: Ref<string> = ref('TU')
+const serie: Ref<string> = ref('')
 const setVehiclePlateType = (value: string) => {
-  serie.value = value
+  paltetype.value = value
 }
 
 const handleSearchByPlate = async () => {
@@ -31,24 +31,22 @@ const handleSearchByPlate = async () => {
   <div class="vehicle-search">
     <div>
       <LabeledSwitch
-        v-model.trim="serie"
+        v-model.trim="paltetype"
         :titles="['TU', 'RS']"
         @set-switch-value="setVehiclePlateType"
       />
     </div>
     <div class="w-full flex flex-col md:flex-row flex-wrap gap-4 md:gap-0">
       <div class="w-full md:w-6/6">Search by Plate</div>
-      <div class="w-full md:w-2/6">
+      <div class="w-full md:w-1/6">
        
         <div class="flex flex-wrap">
           <ElInput
-            v-model="plate"
-            :placeholder="(serie == 'TU')?`Series : 156`:'999999'"
-            class="w-full"
+            v-model="serie"
+            :placeholder="(paltetype == 'TU')?`Series : 156`:'999999'"
+            class="w-full 	"
            >
-           <template #append>
-            <span >{{ serie }}</span>  
-           </template>
+           
            </ElInput>
         </div>
         <p
@@ -58,8 +56,17 @@ const handleSearchByPlate = async () => {
           {{ error }}
         </p>
       </div>
-      
-      <div class="w-full md:w-2/6"  v-if="serie == 'TU'">
+      <div class="w-full md:w-20			"  >
+        
+        <div class="flex flex-wrap">
+        
+          <span class="inline-flex items-center rounded-md bg-gray-50 px-5 py-3 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+            {{ paltetype }}</span>
+
+          </div>
+          </div>
+
+      <div class="w-full md:w-1/6"  v-if="paltetype == 'TU'">
         
         <div class="flex flex-wrap">
           <ElInput

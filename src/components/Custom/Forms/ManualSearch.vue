@@ -229,7 +229,21 @@ watchEffect(() => {
           filterable
           placeholder="Select"
           class="select"
+          fit-input-width
         >
+
+        <ElOption value="" disabled >
+          <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
+      <div class="w-full md:w-1/3">
+        <span> TYPE </span>
+      </div>
+      <div class="w-full md:w-1/3">
+        <span> CONTRUCTION YEAR </span>
+      </div>
+      
+      </div>
+           
+          </ElOption>
           <ElOption
             v-for="item in models"
             :key="item.MS_ID"
@@ -239,10 +253,18 @@ watchEffect(() => {
             (item.MS_CI_TO?' - '+item.MS_CI_TO.slice(0,7).replace('-','/'):'')"
             :value="item.MS_ID"
            >
-           <span style="display: inline;width: 100%;">{{ item.MS_NAME }}</span>
-              &nbsp;&nbsp;&nbsp;
-           <span v-if="item.MS_CI_FROM"> {{  item.MS_CI_FROM.slice(0,7).replace('-','/')  }} </span>
-           <span v-if="item.MS_CI_TO"> -  {{ item.MS_CI_TO.slice(0,7).replace('-','/')  }} </span>
+           <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4 ">
+      <div class="w-full md:w-3/6 breaks-all ">
+        <span  > {{ item.MS_NAME }} </span>
+      </div>
+      <div class="w-full md:w-3/6">
+        <span> 
+          <span  v-if="item.MS_CI_FROM">{{  item.MS_CI_FROM.slice(0,7).replace('-','/')  }} </span>
+          <span v-if="item.MS_CI_TO"> -  {{ item.MS_CI_TO.slice(0,7).replace('-','/')  }}</span>
+        </span>
+      </div>
+      
+      </div> 
            </ElOption>
         </ElSelect>
         <p
@@ -259,21 +281,49 @@ watchEffect(() => {
           filterable
           placeholder="Select"
           class="select"
+           
+          fit-input-width	
         >
+        <ElOption value="" disabled >
+          <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
+      <div class="w-full md:w-1/3">
+        <span> TYPE </span>
+      </div>
+      <div class="w-full md:w-1/3">
+        <span> KW </span>
+      </div>
+      <div class="w-full md:w-1/3">
+        <span> HP </span>
+      </div>
+      <div class="w-full md:w-1/3">
+        <span> ENGINE </span>
+      </div>
+      </div>
+           
+          </ElOption>
           <ElOption
             v-for="item in cars"
             :key="item.ELEMENT_ID"
-            :label="item.ELEMENT_NAME+''+(item.el3?' | '+item.el3:'')
-            +''+(item.el4?' | '+item.el4:'')
+            :label="item.ELEMENT_NAME+''+(item.el3?' | '+item.el3.replace('.0000','') :'')
+            +''+(item.el4?' | '+item.el4.replace('.0000','') :'')
             +''+(item.el7?' | '+item.el7:'')
             "
             :value="Number(item.ELEMENT_ID)"
           >
-          <span >{{ item.ELEMENT_NAME }}</span>
-    
-          <span v-if="item.el3" > | {{ item.el3 }}   </span>
-          <span v-if="item.el4" > | {{ item.el4 }}  </span>
-          <span v-if="item.el7" > | {{ item.el7 }}   </span>
+          <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
+      <div class="w-full md:w-1/3">
+        <span> {{ item.ELEMENT_NAME }} </span>
+      </div>
+      <div class="w-full md:w-1/3">
+        <span> {{ item.el3.replace('.0000','')  }} </span>
+      </div>
+      <div class="w-full md:w-1/3">
+        <span> {{ item.el4.replace('.0000','') }}  </span>
+      </div>
+      <div class="w-full md:w-1/3">
+        <span> {{ item.el7 }} </span>
+      </div>
+      </div>
           </ElOption>
         </ElSelect>
         <p
@@ -310,16 +360,7 @@ watchEffect(() => {
         />
       </div>
     </div>
-    <div>
-      <ElButton
-        v-loading.fullscreen.lock="loading"
-        class="btn"
-        icon="search"
-        @click="handleManualSearch"
-      >
-        Search
-      </ElButton>
-    </div>
+    
     <div v-if="!isEmpty(carData)">
       <CarInfo />
       <div

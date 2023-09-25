@@ -17,7 +17,7 @@ const router = createRouter({
           children: [],
         },
         {
-          path: 'my-search/search-list/:categoryId/:groupName',
+          path: 'my-search/search-list/:categoryId',
           name: 'Search List',
           component: () => import('../pages/my-search/search-list.vue'),
           props: true,

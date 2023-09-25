@@ -17,7 +17,7 @@ const handleSaerchCategoryInputFocus = (): void => {
 </script>
 
 <template>
-  <div class="bg-[#f1f1fc] space-y-4 h-auto">
+  <div class="bg-[#f1f1fc] space-y-4">
     <VBtn
       prepend-icon="mdi-arrow-left"
       variant="text"
