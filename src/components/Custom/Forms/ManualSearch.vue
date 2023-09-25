@@ -2,17 +2,17 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-// eslint-disable-next-line regex/invalid
-import axios from 'axios'
+
 import { isEmpty } from 'lodash'
 import dayjs from 'dayjs'
 import CarInfo from '../Results/CarInfo.vue'
 import TabButton from '../Buttons/TabButton.vue'
-import { CAR_INFO } from '@/composables/constant'
 import useCarStore from '@/store/car'
 import useManufacturers from '@/composables/manufacturers'
 import useModels from '@/composables/models'
 import useCars from '@/composables/cars'
+import useManufacturesStore from '@/store/manufacturers'
+import useEngineCodes from '@/composables/engineCodes'
 
 interface IButton {
   title: string
@@ -24,9 +24,11 @@ interface IButton {
 const router = useRouter()
 const route = useRoute()
 const store = useCarStore()
-const { getManufacturers, manufacturers, manufacturersLoading } = useManufacturers()
+const manufacturersStore = useManufacturesStore()
+const { getManufacturers, manufacturersLoading } = useManufacturers()
 const { getModels, models, modelsLoading } = useModels()
-const { getCars, cars, carsLoading, carData } = useCars()
+const { getCars, cars, carsLoading, carData, getCarInfo, noDataFound } = useCars()
+const { getEngineCodes, engineCodes, engineLoading } = useEngineCodes()
 
 const selectedType: Ref<string> = ref('PC')
 
@@ -44,18 +46,17 @@ const currentButton: Ref<string> = ref('PC')
 const selectedManufacturer: Ref<string> = ref('')
 const car: Ref<string> = ref('')
 const model: Ref<string> = ref('')
+const engineCode: Ref<string> = ref('')
 const manufacturerErr: Ref<string> = ref('')
 const carErr: Ref<string> = ref('')
 const modelErr: Ref<string> = ref('')
 const modelYear: Ref<string> = ref('')
 const fuelType: Ref<string> = ref('')
 const ccCapacity: Ref<string> = ref('')
-
-// const carData: Ref<any> = ref({})
 const loading: Ref<boolean> = ref(false)
 
 const handleRedirect = () => {
-  router.push({ name: 'Parts Categories', params: { id: car.value } })
+  router.push({ name: 'Parts Categories', params: { id: car.value, targetType: selectedType.value } })
 }
 
 const handleTypeClick = (button: IButton) => {
@@ -64,53 +65,43 @@ const handleTypeClick = (button: IButton) => {
   store.setCarType(selectedType.value)
 }
 
-watchEffect(async () => await getManufacturers(selectedType.value))
+watchEffect(async () => {
+  if (manufacturersStore.manufacturers.length === 0)
+    await getManufacturers(selectedType.value)
+})
 
 watch(selectedManufacturer, async () => await getModels({ selectedManufacturer: selectedManufacturer.value, selectedType: selectedType.value }))
 
 watch(model, async () => await getCars({ model: model.value, selectedType: selectedType.value }))
 
-watch(car, async () => {
-  try {
-    loading.value = true
+watch(selectedManufacturer, async () => {
+  if (selectedType.value === 'ENG')
+    await getEngineCodes(selectedManufacturer.value)
 
-    const response = await axios.get(CAR_INFO, {
-      params: {
-        car: car.value,
-        typeCar: selectedType.value,
-      },
-    })
-
-    const data = await response.data
-
-    carData.value = data.data
-    store.setCarInfo(carData.value)
-
-    const jsonString = JSON.stringify(carData.value)
-
-    localStorage.setItem('carData', jsonString)
-    modelYear.value = dayjs(carData.value.PCS_CONSTRUCTION_INTERVAL_START).format('YYYY')
-    fuelType.value = carData.value.PC_FUEL_TYPE
-    loading.value = false
-
-    if (route.path !== '/home') {
-      router.push({ name: 'Parts Categories', params: { id: car.value } })
-
-      return
-    }
-  }
-  catch (err) {
-    console.log(err)
-    loading.value = false
-  }
+  // await getCarInfo({ car: engineCode.value, selectedType: selectedType.value })
 })
 
-watchEffect(() => {
-  if (route.name === '/home')
-    loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value
+watch(car, async () => {
+  await getCarInfo({ car: car.value, selectedType: selectedType.value })
 
-  else
-    loading.value = carsLoading.value || modelsLoading.value
+  modelYear.value = carData.value && dayjs(carData.value.PCS_CONSTRUCTION_INTERVAL_START).format('YYYY')
+  fuelType.value = carData.value && carData.value.PC_FUEL_TYPE
+
+  if (route.path !== '/home')
+    router.push({ name: 'Parts Categories', params: { id: car.value, targetType: selectedType.value } })
+})
+
+watch(engineCode, async () => {
+  await getCarInfo({ car: engineCode.value, selectedType: selectedType.value })
+  await console.log(noDataFound.value)
+  modelYear.value = carData.value && dayjs(carData.value.PCS_CONSTRUCTION_INTERVAL_START).format('YYYY')
+  fuelType.value = carData.value && carData.value.PC_FUEL_TYPE
+
+  if (route.path !== '/home')
+    router.push({ name: 'Parts Categories', params: { id: engineCode.value, targetType: selectedType.value } })
+})
+watchEffect(() => {
+  loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value || engineLoading.value
 })
 </script>
 
@@ -131,7 +122,7 @@ watchEffect(() => {
     </div>
     <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
       <div class="w-full md:w-1/3">
-        <label> Select Manufactuerer {{ manufacturers.length > 0 ? `(${manufacturers.length})` : '' }} </label>
+        <label> Select Manufactuerer {{ manufacturersStore.manufacturers.length > 0 ? `(${manufacturersStore.manufacturers.length})` : '' }} </label>
         <ElSelect
           v-model="selectedManufacturer"
           filterable
@@ -139,7 +130,7 @@ watchEffect(() => {
           class="select"
         >
           <ElOption
-            v-for="item in manufacturers"
+            v-for="item in manufacturersStore.manufacturers"
             :key="item.MFA_ID"
             :label="item.MFA_BRAND"
             :value="item.MFA_ID"
@@ -152,27 +143,26 @@ watchEffect(() => {
           {{ manufacturerErr }}
         </p>
       </div>
-      <div class="w-full md:w-1/3">
-        <label> Select Model {{ models.length > 0 ? `(${models.length})` : '' }}</label>
+      <div
+        v-if="selectedType === 'ENG'"
+        class="w-full md:w-1/3"
+      >
+        <label> Select Engine code {{ engineCodes.length > 0 ? `(${engineCodes.length})` : '' }}</label>
         <ElSelect
-          v-model="model"
+          v-model="engineCode"
           filterable
           placeholder="Select"
           class="select"
         >
           <ElOption
-            v-for="item in models"
-            :key="item.MS_ID"
-            :label="`${item.MS_NAME ?? item.ENG_CODE}    ${
-              item.MS_CI_FROM ? item.MS_CI_FROM.slice(0, 7).replace('-', '/') : ''
-            }${
-              item.MS_CI_TO ? ` - ${item.MS_CI_TO.slice(0, 7).replace('-', '/')}` : ''}`"
-            :value="item.MS_ID ?? item.ENG_ID"
+            v-for="item in engineCodes"
+            :key="item.ENG_ID"
+            :label="`Code ${item.ENG_CODE} | cylinders ${item.ECS_NUMBER_OF_CYLINDERS}`"
+            :value="item.carId"
           >
-            <span style="display: inline;width: 100%;">{{ item.MS_NAME }}</span>
+            <span style="display: inline;width: 100%;">{{ item.ENG_CODE }}</span>
               &nbsp;&nbsp;&nbsp;
-            <span v-if="item.MS_CI_FROM"> {{ item.MS_CI_FROM.slice(0, 7).replace('-', '/') }} </span>
-            <span v-if="item.MS_CI_TO"> -  {{ item.MS_CI_TO.slice(0, 7).replace('-', '/') }} </span>
+            <span> {{ item.ECS_NUMBER_OF_CYLINDERS }} </span>
           </ElOption>
         </ElSelect>
         <p
@@ -182,28 +172,114 @@ watchEffect(() => {
           {{ modelErr }}
         </p>
       </div>
-      <div class="w-full md:w-1/3">
+      <div
+        v-if="selectedType !== 'ENG'"
+        class="w-full md:w-1/3"
+      >
+        <label> Select Model {{ models.length > 0 ? `(${models.length})` : '' }}</label>
+        <ElSelect
+          v-model="model"
+          filterable
+          placeholder="Select"
+          class="select"
+        >
+          <ElOption
+            value=""
+            disabled
+          >
+            <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
+              <div class="w-full md:w-1/3">
+                <span> TYPE </span>
+              </div>
+              <div class="w-full md:w-1/3">
+                <span> CONTRUCTION YEAR </span>
+              </div>
+            </div>
+          </ElOption>
+          <ElOption
+            v-for="item in models"
+            :key="item.MS_ID"
+            :label="`${item.MS_NAME}    ${
+              item.MS_CI_FROM ? item.MS_CI_FROM.slice(0, 7).replace('-', '/') : ''
+            }${
+              item.MS_CI_TO ? ` - ${item.MS_CI_TO.slice(0, 7).replace('-', '/')}` : ''}`"
+            :value="item.MS_ID"
+          >
+            <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4 ">
+              <div class="w-full md:w-3/6 breaks-all ">
+                <span> {{ item.MS_NAME }} </span>
+              </div>
+              <div class="w-full md:w-3/6">
+                <span>
+                  <span v-if="item.MS_CI_FROM">{{ item.MS_CI_FROM.slice(0, 7).replace('-', '/') }} </span>
+                  <span v-if="item.MS_CI_TO"> -  {{ item.MS_CI_TO.slice(0, 7).replace('-', '/') }}</span>
+                </span>
+              </div>
+            </div>
+          </ElOption>
+        </ElSelect>
+        <p
+          v-if="model === ''"
+          class="text-red-500 text-sm"
+        >
+          {{ modelErr }}
+        </p>
+      </div>
+      <div
+        v-if="selectedType !== 'ENG'"
+        class="w-full md:w-1/3"
+      >
         <label> Select Car  {{ cars.length > 0 ? `(${cars.length})` : '' }}</label>
         <ElSelect
           v-model="car"
           filterable
           placeholder="Select"
           class="select"
+
+          fit-input-width
         >
+          <ElOption
+            value=""
+            disabled
+          >
+            <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
+              <div class="w-full md:w-1/3">
+                <span> TYPE </span>
+              </div>
+              <div class="w-full md:w-1/3">
+                <span> KW </span>
+              </div>
+              <div class="w-full md:w-1/3">
+                <span> HP </span>
+              </div>
+              <div class="w-full md:w-1/3">
+                <span> ENGINE </span>
+              </div>
+            </div>
+          </ElOption>
           <ElOption
             v-for="item in cars"
             :key="item.ELEMENT_ID"
-            :label="`${item.ELEMENT_NAME}${item.el3 ? ` | ${  item.el3}` : ''
-            }${item.el4 ? ` | ${  item.el4}` : ''
+            :label="`${item.ELEMENT_NAME}${item.el3 ? ` | ${  item.el3.replace('.0000', '')}` : ''
+            }${item.el4 ? ` | ${  item.el4.replace('.0000', '')}` : ''
             }${item.el7 ? ` | ${  item.el7}` : ''}`
             "
             :value="Number(item.ELEMENT_ID)"
           >
-            <span>{{ item.ELEMENT_NAME }}</span>
-
-            <span v-if="item.el3"> | {{ item.el3 }}   </span>
-            <span v-if="item.el4"> | {{ item.el4 }}  </span>
-            <span v-if="item.el7"> | {{ item.el7 }}   </span>
+            <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
+              <div class="w-full md:w-1/3">
+                <span> {{ item.ELEMENT_NAME }} </span>
+              </div>
+              <div class="w-full md:w-1/3">
+                <span> {{ item.el3.replace('.0000', '') }} </span>
+              </div>
+              <div class="w-full md:w-1/3">
+                <span> {{ item.el4.replace('.0000', '') }}  </span>
+              </div>
+              <div class="w-full md:w-1/3">
+                <span> {{ item.el7 }} </span>
+              </div>
+            </div>
           </ElOption>
         </ElSelect>
         <p
@@ -255,6 +331,9 @@ watchEffect(() => {
           Go to categories
         </VBtn>
       </div>
+    </div>
+    <div v-if="noDataFound">
+      <p>NO DATA FOUND</p>
     </div>
   </div>
 </template>

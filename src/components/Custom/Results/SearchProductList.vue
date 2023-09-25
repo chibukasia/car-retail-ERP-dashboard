@@ -96,7 +96,9 @@ onMounted(async () => {
 
 <template>
   <div>
-    <CarOverview :car-id="carId" />
+    <div class="sticky top-0 z-10">
+      <CarOverview :car-id="carId" />
+    </div>
     <div class="flex w-full gap-4 pt-5">
       <div class="w-full md:w-1/2 lg:w-1/3 pb-3">
         <h2 class="font-bold">

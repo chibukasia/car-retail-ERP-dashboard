@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { uniqBy } from 'lodash'
 import CarOverView from '../../../components/Custom/Results/CarOverview.vue'
-import { CAR_INFO } from '@/composables/constant'
+import { CAR_INFO, S3_STORAGE_IMAGE } from '@/composables/constant'
 import useCarStore from '@/store/car'
 import PartCard from '@/components/Custom/cards/PartCard.vue'
 
@@ -26,6 +26,7 @@ interface ICategory {
 const store = useCarStore()
 
 const router = useRouter()
+const route = useRoute()
 
 // const route = useRoute()
 
@@ -67,7 +68,6 @@ const handleLevel4Click = (item: ICategory) => {
 }
 
 const handlePrimaryCategoryClick = (values: ICategory[]) => {
-  console.log(values)
   level2FilteredItems.value = uniqBy(values, 'NODE_1_TEXT')
   categories.value = values
   nestedCategories.value = level2FilteredItems.value
@@ -82,7 +82,7 @@ onMounted(async () => {
     const response = await axios.get(CAR_INFO, {
       params: {
         car: props.carId,
-        typeCar: store.carType,
+        typeCar: route.params.targetType,
       },
     })
 
@@ -102,12 +102,10 @@ onMounted(async () => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 onBeforeRouteUpdate(async (to, from) => {
   try {
-    // loading.value = true
-
     const response = await axios.get(CAR_INFO, {
       params: {
         car: to.params.id,
-        typeCar: store.carType,
+        typeCar: to.params.targetTYpe,
       },
     })
 
@@ -128,9 +126,12 @@ onBeforeRouteUpdate(async (to, from) => {
 <template>
   <div
     v-loading.fullscreen.lock="loading"
-    class="p-3 space-y-4"
+    class="p-3 space-y-4 scroll-smooth"
   >
-    <CarOverView :car-id="carId" />
+    <div class="sticky top-0 z-10">
+      <CarOverView :car-id="carId" />
+    </div>
+
     <div>
       <h3 class="blue-text text-lg text-center">
         {{ categoryTitle }}
@@ -156,6 +157,12 @@ onBeforeRouteUpdate(async (to, from) => {
                   <div>{{ key }}</div>
                   <div><VIcon icon="mdi-chevron-right" /></div>
                 </div>
+              </div>
+              <div
+                v-if="!loading && !carCategoriesData"
+                class="px-4"
+              >
+                No Categories found
               </div>
             </div>
             <div v-else-if="level2FilteredItems.length > 0 && level3FilteredItems.length === 0 && level4FilteredItems.length === 0">
@@ -203,10 +210,18 @@ onBeforeRouteUpdate(async (to, from) => {
               >
                 <PartCard
                   :name="key"
+                  :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${values[0].ROOT_NODE_STR_ID}.png`"
                   @click="handlePrimaryCategoryClick(values)"
                 />
               </div>
             </div>
+          </div>
+          <div
+            v-if="!loading && !carCategoriesData"
+            class="px-4 flex items-center text-xl font-bold text-center"
+          >
+            Unfortunately, we do not offer any products for the particular vehicle at this time.
+            You can choose another vehicle or search for articles using the free text search.
           </div>
         </div>
         <div v-else-if="level2FilteredItems.length > 0 && level3FilteredItems.length === 0 && level4FilteredItems.length === 0">
@@ -217,6 +232,7 @@ onBeforeRouteUpdate(async (to, from) => {
             >
               <PartCard
                 :name="item.NODE_1_TEXT"
+                :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${item.NODE_1_STR_ID}.png`"
                 @click="handleLevel2Click(item)"
               />
             </div>
@@ -227,6 +243,7 @@ onBeforeRouteUpdate(async (to, from) => {
             <div
               v-for="(item, index) in level3FilteredItems"
               :key="item.NODE_2_STR_ID ?? index"
+              :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${item.NODE_2_STR_ID}.png`"
             >
               <PartCard
                 :name=" item.NODE_2_TEXT"
@@ -240,6 +257,7 @@ onBeforeRouteUpdate(async (to, from) => {
             <div
               v-for="(item, index) in level4FilteredItems"
               :key="item.NODE_2_STR_ID ?? index"
+              :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${item.NODE_3_STR_ID}.png`"
             >
               <PartCard
                 :name=" item.NODE_2_TEXT"

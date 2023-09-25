@@ -2,11 +2,9 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { PLATE_NUMBER } from './constant'
-import useCarStore from '@/store/car'
 
-const store = useCarStore()
 export default function usePlates() {
-  const carData: Ref<any> = ref(null)
+  const searchData: Ref<any> = ref(null)
   const loading: Ref<boolean> = ref(false)
   const noDataFound: Ref<boolean> = ref(false)
   const error: Ref<string> = ref('')
@@ -31,10 +29,8 @@ export default function usePlates() {
         return
       }
 
-      carData.value = responseData.data
+      searchData.value = responseData.data
       loading.value = false
-      store.setCarInfo(carData.value)
-      console.log(responseData.data)
     }
     catch (err: any) {
       console.log(err)
@@ -57,6 +53,6 @@ export default function usePlates() {
   }
 
   return {
-    getByPlates, carData, loading, error, noDataFound,
+    getByPlates, searchData, loading, error, noDataFound,
   }
 }

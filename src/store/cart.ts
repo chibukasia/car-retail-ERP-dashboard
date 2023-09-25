@@ -9,13 +9,13 @@ const useCartStore = defineStore('cart', () => {
 
   const addToCart = (cartObject: any) => {
     cartItems.value.push(cartObject)
+
+    const jsonString = JSON.stringify(cartItems.value)
+
+    localStorage.setItem('cart', jsonString)
   }
 
-  const incrementStoreCount = () => {
-    storeCount.value++
-  }
-
-  return { storeCount, incrementStoreCount, addToCart, cartItems }
+  return { storeCount, addToCart, cartItems }
 })
 
 export default useCartStore

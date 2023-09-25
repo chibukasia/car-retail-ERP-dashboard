@@ -2,32 +2,28 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 // eslint-disable-next-line regex/invalid
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
 import { MODELS_DOMAIN } from './constant'
-import useModelsStore from '@/store/models'
 
-const store = useModelsStore()
-
-export default function useModels() {
-  const models: Ref<any[]> = ref([])
+export default function useEngineCodes() {
+  const engineCodes: Ref<any[]> = ref([])
   const loading: Ref<boolean> = ref(false)
   const error: Ref<string> = ref('')
 
-  const getModels = async (params: any) => {
+  const getEngineCodes = async (manufacturer: string) => {
+    loading.value = true
     try {
       loading.value = true
 
       const response = await axios.get(MODELS_DOMAIN, {
         params: {
-          manu: params.selectedManufacturer,
-          typeCar: params.selectedType,
+          typeCar: 'ENG',
+          manu: manufacturer,
         },
       })
 
       const data = await response.data
 
-      models.value = data.data
-      store.setModels(data.data)
+      engineCodes.value = data.data
       loading.value = false
     }
     catch (err: any) {
@@ -51,6 +47,8 @@ export default function useModels() {
   }
 
   return {
-    models, modelsError: error, modelsLoading: loading, getModels,
+    getEngineCodes, engineCodes, engineCodeError: error, engineLoading: loading,
   }
 }
+
+//

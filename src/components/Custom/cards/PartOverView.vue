@@ -30,7 +30,6 @@ onMounted(async () => {
 const handleAddToCart = () => {
   cartObject.value = { ...cartObject.value, name: props.productName }
   store.addToCart(cartObject.value)
-  console.log(cartObject.value)
 }
 
 const handleViewDetails = () => {

@@ -4,12 +4,19 @@ import { ref } from 'vue'
 import LabeledSwitch from '../../Custom/Switches/LabeledSwitch.vue'
 import CarInfo from '../Results/CarInfo.vue'
 import usePlates from '@/composables/plates'
+import useCars from '@/composables/cars'
+import useCarStore from '@/store/car'
 
 const router = useRouter()
 
-const { carData, error, loading, getByPlates, noDataFound } = usePlates()
+const { searchData, loading, getByPlates, noDataFound } = usePlates()
+const { getCarInfo, carData } = useCars()
+const carStore = useCarStore()
+
 const plate: Ref<string> = ref('')
 const serie: Ref<string> = ref('')
+const plateErr: Ref<string> = ref('')
+const serieErr: Ref<string> = ref('')
 const plateType: Ref<string> = ref('TU')
 
 const setVehiclePlateType = (value: string) => {
@@ -19,19 +26,19 @@ const setVehiclePlateType = (value: string) => {
 const handleSearchByPlate = async () => {
   if (plateType.value === 'TU') {
     if (serie.value === '') {
-      error.value = 'Serie code is required'
+      serieErr.value = 'Serie code is required'
 
       return
     }
     if (plate.value === '') {
-      error.value = 'Plate number is required'
+      plateErr.value = 'Plate number is required'
 
       return
     }
   }
   else {
     if (plate.value === '') {
-      error.value = 'Plate number is required'
+      plateErr.value = 'Plate number is required'
 
       return
     }
@@ -40,8 +47,12 @@ const handleSearchByPlate = async () => {
   await getByPlates({ plate: plate.value, serie: serie.value })
 }
 
+watch(searchData, async () => {
+  await getCarInfo({ car: searchData.value.carId, selectedType: carStore.carType })
+})
+
 const handleRedirect = () => {
-  router.push({ name: 'Parts Categories', params: { id: carData.value.carId } })
+  router.push({ name: 'Parts Categories', params: { id: searchData.value.carId, targetType: carStore.carType } })
 }
 </script>
 
@@ -55,45 +66,47 @@ const handleRedirect = () => {
       />
     </div>
     <div class="w-full flex flex-col md:flex-row flex-wrap gap-4 md:gap-0">
-      <div class="w-full md:w-1/3">
-        <label>Search by Plate</label>
-        <div
-          v-if="plateType === 'RS'"
-          class="flex flex-wrap"
-        >
+      <div class="w-full md:w-6/6">
+        Search by Plate
+      </div>
+      <div class="w-full md:w-1/6">
+        <div class="flex flex-wrap">
           <ElInput
-            v-model="plate"
-            placeholder="156-2999"
+            v-model="serie"
+            :placeholder="(plateType === 'TU') ? `Series : 156` : '999999'"
             class="w-full"
           />
         </div>
-        <div
-          v-if="plateType === 'TU'"
-          class="flex items-center border w-fit bg-[#F5F5F5] rounded-md"
-        >
-          <div class="">
-            <input
-              v-model="serie"
-              placeholder="Serie: 100"
-              class="input-plate bg-white h-10 px-2"
-            >
-          </div>
-          <div class="bg-[#F5F5F5] py-[5px] px-5">
-            <p>TU</p>
-          </div>
-          <div class="">
-            <input
-              v-model="plate"
-              placeholder="Number: 1111"
-              class="input-plate bg-white h-10 px-2"
-            >
-          </div>
-        </div>
         <p
-          v-if="error"
+          v-if="serieErr"
           class="text-red-500 text-sm"
         >
-          {{ error }}
+          {{ serieErr }}
+        </p>
+      </div>
+      <div class="w-full md:w-20">
+        <div class="flex flex-wrap">
+          <span class="inline-flex items-center rounded-md bg-gray-50 px-5 py-3 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+            {{ plateType }}</span>
+        </div>
+      </div>
+
+      <div
+        v-if="plateType === 'TU'"
+        class="w-full md:w-1/6"
+      >
+        <div class="flex flex-wrap">
+          <ElInput
+            v-model="plate"
+            placeholder="Number : 2999"
+            class="w-full"
+          />
+        </div>
+        <p
+          v-if="plateErr"
+          class="text-red-500 text-sm"
+        >
+          {{ plateErr }}
         </p>
       </div>
     </div>
@@ -148,15 +161,7 @@ const handleRedirect = () => {
 .el-input {
     width: 100%;
 }
-.input-plate{
-  padding: 5px 3px;
-  border: none;
-  border-radius: 6px;
-  &:focus{
-    outline:0.5px solid #86b7fd;
-    border-radius: 6px;
-  }
-}
+
 label {
     padding: 5px 0px;
     margin-bottom: 5px;

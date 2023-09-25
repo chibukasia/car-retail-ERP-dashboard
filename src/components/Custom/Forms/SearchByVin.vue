@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-// eslint-disable-next-line regex/invalid
-import axios from 'axios'
+
 import { isEmpty } from 'lodash'
 import CarInfo from '../Results/CarInfo.vue'
 import useVins from '@/composables/vins'
 import useCarStore from '@/store/car'
-import { CAR_INFO } from '@/composables/constant'
+import useCars from '@/composables/cars'
 
 const router = useRouter()
 const store = useCarStore()
+const { carData, getCarInfo } = useCars()
 
 const { loading, error, searchData, noDataFound, getByVins } = useVins()
 
 const vinInput: Ref<string> = ref('')
-const carData: Ref<any> = ref(null)
 
 const hadleSearchByVin = async () => {
   loading.value = true
@@ -34,34 +33,11 @@ const hadleSearchByVin = async () => {
 }
 
 const handleRedirect = async () => {
-  await searchData.value && router.push({ name: 'Parts Categories', params: { id: searchData.value.carId } })
+  await searchData.value && router.push({ name: 'Parts Categories', params: { id: searchData.value.carId, targetType: store.carType } })
 }
 
 watch(searchData, async () => {
-  try {
-    loading.value = true
-
-    const response = await axios.get(CAR_INFO, {
-      params: {
-        car: searchData.value.carId,
-        typeCar: store.carType,
-      },
-    })
-
-    const data = await response.data
-
-    carData.value = data.data
-    store.setCarInfo(carData.value)
-
-    const jsonString = JSON.stringify(carData.value)
-
-    localStorage.setItem('carData', jsonString)
-    loading.value = false
-  }
-  catch (err) {
-    console.log(err)
-    loading.value = false
-  }
+  await getCarInfo({ car: searchData.value.carId, selectedType: store.carType })
 })
 </script>
 

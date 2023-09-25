@@ -26,7 +26,7 @@ onMounted(() => {
         class="w-full md:w-[32%]"
       >
         <p v-if="value !== null">
-          {{ key.toString().replace(/_/g, ' ') }}: {{ value }}
+          {{ key === 'TYPEL' ? key : key.toString().slice(3).replace(/_/g, ' ').replace('-00', '')  }}: {{ value.toString().replace('-00', '').replace('.0000', '') }}
         </p>
       </div>
     </div>

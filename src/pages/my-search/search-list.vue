@@ -3,13 +3,8 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import SearchProductList from '@/components/Custom/Results/SearchProductList.vue'
 import HomeHeader from '@/components/Custom/Headers/HomeHeader.vue'
-import useCarStore from '@/store/car'
 
 const props = defineProps(['categoryId', 'groupName', 'carId'])
-const store = useCarStore()
-
-console.log(props.categoryId)
-console.log(store.carCategories)
 
 const searchCategoriesVisible: Ref<boolean> = ref(false)
 
@@ -27,7 +22,7 @@ const handleSaerchCategoryInputFocus = (): void => {
     <VBtn
       prepend-icon="mdi-arrow-left"
       variant="text"
-      class="hover: hover:bg-[#a9bdf1] hover:text-white"
+      class="hover:bg-[#a9bdf1] hover:text-white"
       @click="$router.go(-1)"
     >
       Go Back

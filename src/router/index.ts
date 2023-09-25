@@ -23,7 +23,7 @@ const router = createRouter({
           props: true,
         },
         {
-          path: 'my-search/parts-categories/:id/:category?',
+          path: 'my-search/parts-categories/:id/:targetType/:category?',
           name: 'Parts Categories',
           component: () => import('../pages/my-search/parts-categories.vue'),
           props: true,

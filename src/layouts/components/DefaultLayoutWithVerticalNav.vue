@@ -17,9 +17,24 @@ const store = useCartStore()
 
 const routeItems: Ref<any[]> = ref([route.matched])
 
+const cartCount: Ref<number> = ref(0)
+
 watchEffect(() => {
   routeItems.value = route.matched
-  console.log(routeItems.value)
+})
+
+onMounted(() => {
+  const storedJsonString = localStorage.getItem('cart')
+  const cartItems = JSON.parse(storedJsonString || '[]')
+
+  cartCount.value = cartItems.length
+})
+
+watch(store.cartItems, () => {
+  const storedJsonString = localStorage.getItem('cart')
+  const cartItems = JSON.parse(storedJsonString || '[]')
+
+  cartCount.value = cartItems.length
 })
 </script>
 
@@ -56,25 +71,24 @@ watchEffect(() => {
         <VSpacer />
         <div class="flex items-center">
           <IconBtn
-          class="text-none"
-          stacked
-        >
-          <VBadge
-            :content="store.cartItems.length"
-            color="error"
+            class="text-none"
+            stacked
           >
-            <VIcon>mdi-cart</VIcon>
-          </VBadge>
-        </IconBtn>
-        <IconBtn class="me-2">
-          <VIcon icon="bx-bell" />
-        </IconBtn>
+            <VBadge
+              :content="cartCount"
+              color="error"
+            >
+              <VIcon>mdi-cart</VIcon>
+            </VBadge>
+          </IconBtn>
+          <IconBtn class="me-2">
+            <VIcon icon="bx-bell" />
+          </IconBtn>
 
-        <NavbarThemeSwitcher class="me-2" />
+          <NavbarThemeSwitcher class="me-2" />
 
-        <UserProfile />
+          <UserProfile />
         </div>
-        
       </div>
     </template>
 
