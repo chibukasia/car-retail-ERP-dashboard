@@ -1,9 +1,11 @@
+<!-- eslint-disable vue/no-irregular-whitespace -->
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 // eslint-disable-next-line regex/invalid
 import axios from 'axios'
 import { isEmpty } from 'lodash'
+import dayjs from 'dayjs'
 import CarInfo from '../Results/CarInfo.vue'
 import TabButton from '../Buttons/TabButton.vue'
 import { CAR_INFO } from '@/composables/constant'
@@ -11,11 +13,6 @@ import useCarStore from '@/store/car'
 import useManufacturers from '@/composables/manufacturers'
 import useModels from '@/composables/models'
 import useCars from '@/composables/cars'
-
-interface IVehicle {
-  passenger: string
-  commercial: string
-}
 
 interface IButton {
   title: string
@@ -25,33 +22,23 @@ interface IButton {
 }
 
 const router = useRouter()
+const route = useRoute()
 const store = useCarStore()
 const { getManufacturers, manufacturers, manufacturersLoading } = useManufacturers()
 const { getModels, models, modelsLoading } = useModels()
 const { getCars, cars, carsLoading, carData } = useCars()
 
-const vehicles: Ref<IVehicle> = ref({
-  passenger: 'Passenger',
-  commercial: 'Commercial vehicle & tractor',
-})
-
 const selectedType: Ref<string> = ref('PC')
 
 const buttons: Ref<IButton[]> = ref([
-  // { title: 'Home', isActive: false, icon: 'fa-home', type: 'PC' },
   { title: 'PC', isActive: false, icon: 'fa-car', type: 'PC' },
   { title: 'CV', isActive: false, icon: 'fa-bus-simple', type: 'CV' },
-  // { title: 'LVC', isActive: false, icon: 'fa-truck', type: 'DC' },
   { title: 'Motorcycle', isActive: false, icon: 'fa-motorcycle', type: 'MTB' },
-
   { title: 'Tractor', isActive: false, icon: 'fa-tractor', type: 'TRA' },
   { title: 'Engine', isActive: false, icon: 'fa-gears', type: 'ENG' },
-  { title: 'Axel', isActive: false, icon: 'fa-arrows-left-right', type: 'AXL' },
-  // { title: 'CV body type', isActive: false, icon: 'fa-van-shuttle', type: 'CV' },
+  { title: 'Axle', isActive: false, icon: 'fa-arrows-left-right', type: 'AXL' },
 ])
 
-const isPersonal: Ref<boolean> = ref(true)
-const isCommercial: Ref<boolean> = ref(true)
 const currentButton: Ref<string> = ref('PC')
 
 const selectedManufacturer: Ref<string> = ref('')
@@ -60,73 +47,18 @@ const model: Ref<string> = ref('')
 const manufacturerErr: Ref<string> = ref('')
 const carErr: Ref<string> = ref('')
 const modelErr: Ref<string> = ref('')
-const isSelected: Ref<boolean> = ref(true)
-const modelYear: Ref<string> = ref('2023')
-const fuelType: Ref<string> = ref('Diesel')
-const ccCapacity: Ref<string> = ref('10000')
+const modelYear: Ref<string> = ref('')
+const fuelType: Ref<string> = ref('')
+const ccCapacity: Ref<string> = ref('')
 
 // const carData: Ref<any> = ref({})
 const loading: Ref<boolean> = ref(false)
-
-const fullscreenLoading = ref(false)
-
-const handleClick = () => {
-  isSelected.value = !isSelected.value
-}
-
-const handleManualSearch = () => {
-  if (selectedManufacturer.value === '') {
-    manufacturerErr.value = 'Manufactuerer is required'
-
-    return
-  }
-
-  if (model.value === '') {
-    modelErr.value = 'Model  field required'
-
-    return
-  }
-
-  if (car.value === '') {
-    carErr.value = 'Car field required'
-
-    return
-  }
-  fullscreenLoading.value = true
-  setTimeout(() => {
-    fullscreenLoading.value = false
-  }, 2000)
-  console.log(car.value, model.value, selectedManufacturer.value)
-}
 
 const handleRedirect = () => {
   router.push({ name: 'Parts Categories', params: { id: car.value } })
 }
 
 const handleTypeClick = (button: IButton) => {
-  if (
-    button.title.toLocaleLowerCase() === 'pc'
-    || button.title.toLocaleLowerCase() === 'lvc'
-    || button.title.toLocaleLowerCase() === 'motorcycle'
-  ) {
-    isCommercial.value = false
-    isPersonal.value = true
-  }
-  else if (
-    button.title.toLocaleLowerCase() === 'cv'
-    || button.title.toLocaleLowerCase() === 'tractor'
-    || button.title.toLocaleLowerCase() === 'engine'
-    || button.title.toLocaleLowerCase() === 'axel'
-    || button.title.toLocaleLowerCase() === 'cv body type'
-  ) {
-    isCommercial.value = true
-    isPersonal.value = false
-  }
-  else {
-    isCommercial.value = true
-    isPersonal.value = true
-  }
-
   currentButton.value = button.title
   selectedType.value = button.type
   store.setCarType(selectedType.value)
@@ -153,7 +85,19 @@ watch(car, async () => {
 
     carData.value = data.data
     store.setCarInfo(carData.value)
+
+    const jsonString = JSON.stringify(carData.value)
+
+    localStorage.setItem('carData', jsonString)
+    modelYear.value = dayjs(carData.value.PCS_CONSTRUCTION_INTERVAL_START).format('YYYY')
+    fuelType.value = carData.value.PC_FUEL_TYPE
     loading.value = false
+
+    if (route.path !== '/home') {
+      router.push({ name: 'Parts Categories', params: { id: car.value } })
+
+      return
+    }
   }
   catch (err) {
     console.log(err)
@@ -162,12 +106,19 @@ watch(car, async () => {
 })
 
 watchEffect(() => {
-  loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value
+  if (route.name === '/home')
+    loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value
+
+  else
+    loading.value = carsLoading.value || modelsLoading.value
 })
 </script>
 
 <template>
-  <div class="manual-search">
+  <div
+    v-loading.fullscreen.lock="loading"
+    class="manual-search"
+  >
     <div class="tabs-buttons">
       <TabButton
         v-for="button in buttons"
@@ -178,26 +129,6 @@ watchEffect(() => {
         @update-vehicle-type="handleTypeClick(button)"
       />
     </div>
-    <!-- <div class="vehicle-type">
-      <button
-        class="icon-btn"
-        :class="{ active: isSelected }"
-        :disabled="!isPersonal"
-        @click="handleClick"
-      >
-        <FontAwesomeIcon icon="fa-solid fa-car" />
-        {{ vehicles.passenger }}
-      </button>
-      <button
-        class="icon-btn"
-        :class="{ active: !isSelected }"
-        :disabled="!isCommercial"
-        @click="handleClick"
-      >
-        <FontAwesomeIcon icon="fa-solid fa-bus-simple" />
-        {{ vehicles.commercial }}
-      </button>
-    </div> -->
     <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
       <div class="w-full md:w-1/3">
         <label> Select Manufactuerer {{ manufacturers.length > 0 ? `(${manufacturers.length})` : '' }} </label>
@@ -223,15 +154,12 @@ watchEffect(() => {
       </div>
       <div class="w-full md:w-1/3">
         <label> Select Model {{ models.length > 0 ? `(${models.length})` : '' }}</label>
-        
         <ElSelect
           v-model="model"
           filterable
           placeholder="Select"
           class="select"
-          fit-input-width
         >
-
         <ElOption value="" disabled >
           <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
       <div class="w-full md:w-1/3">
@@ -281,12 +209,10 @@ watchEffect(() => {
           filterable
           placeholder="Select"
           class="select"
-           
-          fit-input-width	
         >
         <ElOption value="" disabled >
           <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
-      <div class="w-full md:w-1/3">
+      <div class="w-full md:w-1/1">
         <span> TYPE </span>
       </div>
       <div class="w-full md:w-1/3">
@@ -311,7 +237,7 @@ watchEffect(() => {
             :value="Number(item.ELEMENT_ID)"
           >
           <div class="w-full flex flex-col md:flex-row gap-4 md:gap-4">
-      <div class="w-full md:w-1/3">
+      <div class="w-full md:w-1/1">
         <span> {{ item.ELEMENT_NAME }} </span>
       </div>
       <div class="w-full md:w-1/3">
@@ -339,7 +265,7 @@ watchEffect(() => {
         <label> Model Year </label>
         <ElInput
           v-model="modelYear"
-          placeholder="Please input"
+          placeholder=""
           disabled
         />
       </div>
@@ -347,7 +273,7 @@ watchEffect(() => {
         <label> Fuel Type</label>
         <ElInput
           v-model="fuelType"
-          placeholder="Please input"
+          placeholder=""
           disabled
         />
       </div>
@@ -355,14 +281,13 @@ watchEffect(() => {
         <label> CC Capacity</label>
         <ElInput
           v-model="ccCapacity"
-          placeholder="Please input"
+          placeholder=""
           disabled
         />
       </div>
     </div>
-    
     <div v-if="!isEmpty(carData)">
-      <CarInfo />
+      <CarInfo :car-details="carData" />
       <div
         v-if="$route.path === '/home'"
         class="pt-5"
