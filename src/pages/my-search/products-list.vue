@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
-import SearchCategories from '../../views/home/components/SearchCategories.vue'
+import type { Ref } from 'vue'
+import { ref } from 'vue'
+import SearchProductList from '@/components/Custom/Results/SearchProductList.vue'
 import HomeHeader from '@/components/Custom/Headers/HomeHeader.vue'
 
-const props = defineProps(['id'])
+const props = defineProps(['categoryId', 'groupName', 'carId'])
 
 const searchCategoriesVisible: Ref<boolean> = ref(false)
 
@@ -17,15 +18,7 @@ const handleSaerchCategoryInputFocus = (): void => {
 </script>
 
 <template>
-  <div class="bg-[#f1f1fc] space-y-4 h-auto">
-    <VBtn
-      prepend-icon="mdi-arrow-left"
-      variant="text"
-      class="hover:bg-[#a9bdf1] hover:text-white"
-      @click="$router.go(-1)"
-    >
-      Go Back
-    </VBtn>
+  <div class="bg-[#f1f1fc] dark:bg-slate-800 p-4 space-y-4">
     <div>
       <HomeHeader
         :search-categories-visible="searchCategoriesVisible"
@@ -34,16 +27,6 @@ const handleSaerchCategoryInputFocus = (): void => {
         @catalogue-click="handleSaerchCategoryInputFocus"
       />
     </div>
-    <hr>
-    <div class="w-[100%] m-auto">
-      <SearchCategories :car-id="props.id" />
-    </div>
+    <SearchProductList :search-tree-id="props.categoryId" :group-name="props.groupName" :car-id="props.carId"/>
   </div>
 </template>
-
-<style>
-.btn {
-  color: white;
-  background-color: #2d4aae;
-}
-</style>

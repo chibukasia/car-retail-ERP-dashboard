@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { } from 'vue'
-import ManualSearch from '../../../components/Custom/Forms/ManualSearch.vue'
-import SearchByVin from '../../../components/Custom/Forms/SearchByVin.vue'
-import SearchByPlate from '../../../components/Custom/Forms/SearchByPlate.vue'
-import SearchByBrand from '../../../components/Custom/Forms/SearchByBrand.vue'
+import ManualSearch from '../../components/Custom/Forms/ManualSearch.vue'
+import SearchByVin from '../../components/Custom/Forms/SearchByVin.vue'
+import SearchByPlate from '../../components/Custom/Forms/SearchByPlate.vue'
+import SearchByBrand from '../../components/Custom/Forms/SearchByBrand.vue'
 import SearchByPartNumber from '@/components/Custom/Forms/SearchByPartNumber.vue'
 
 defineProps({

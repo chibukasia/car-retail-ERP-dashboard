@@ -1,0 +1,21 @@
+<script setup lang="ts">
+import { defineProps } from 'vue'
+import SearchCategories from '../../views/home/SearchCategories.vue'
+
+const props = defineProps(['id'])
+</script>
+
+<template>
+  <div class="bg-[#f1f1fc] space-y-4">
+    <div class="w-[100%] m-auto">
+      <SearchCategories :car-id="props.id" />
+    </div>
+  </div>
+</template>
+
+<style>
+.btn {
+  color: white;
+  background-color: #2d4aae;
+}
+</style>

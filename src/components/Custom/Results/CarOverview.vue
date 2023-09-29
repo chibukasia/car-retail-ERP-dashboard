@@ -3,7 +3,7 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import CarInfo from '../Results/CarInfo.vue'
 import { checkIfImageExists } from '../../../utils'
-import HomeSearch from '@/views/home/components/HomeSearch.vue'
+import HomeSearch from '@/views/home/HomeSearch.vue'
 import useCarStore from '@/store/car'
 import { S3_STORAGE_IMAGE } from '@/composables/constant'
 

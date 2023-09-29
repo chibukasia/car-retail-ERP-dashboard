@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/require-prop-types -->
 <script setup lang="ts">
-import SearchProductDetails from '../../components/Custom/Results/SearchProductDetails.vue'
+import SearchProductDetails from '../../../components/Custom/Results/SearchProductDetails.vue'
 
 const props = defineProps(['id', 'artNumber', 'supId'])
 </script>

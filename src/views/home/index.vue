@@ -3,7 +3,7 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import HomeHeader from '../../components/Custom/Headers/HomeHeader.vue'
-import HomeSeacrh from './components/HomeSearch.vue'
+import HomeSeacrh from './HomeSearch.vue'
 
 const isPersonal: Ref<boolean> = ref(true)
 const isCommercial: Ref<boolean> = ref(true)

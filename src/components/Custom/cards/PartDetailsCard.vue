@@ -11,10 +11,13 @@ console.log('Images: ', props.image)
       v-if="props.articleData"
       class="flex flex-col md:flex-row gap-6 w-full items-center"
     >
-      <div class="w-full md:w-1/2">
-        <img :src="props.image" alt="Product"/>
+      <div class="w-full md:w-1/3">
+        <img
+          :src="props.image"
+          alt="Product"
+        >
       </div>
-      <div class="w-full md:w-1/2 space-y-4 py-3 aspect-square flex flex-col justify-center">
+      <div class="w-full md:w-2/3 space-y-4 py-3 aspect-square flex flex-col justify-center">
         <p> {{ props.articleData[0].ACS_PACK_UNIT ? `Pack Unit: ${props.articleData[0].ACS_PACK_UNIT} ` : null }}</p>
         <p> {{ articleData[0].ACS_QUANTITY_PER_UNIT ? `quantity Per Unit: ${articleData[0].ACS_QUANTITY_PER_UNIT} ` : null }}</p>
         <p> {{ articleData[0].ACS_STATUS_DATE ? `Status Date: ${articleData[0].ACS_STATUS_DATE} ` : null }}</p>

@@ -5,7 +5,7 @@ import useCartStore from '../../../store/cart'
 import { checkIfImageExists } from '@/utils'
 import { S3_STORAGE_IMAGE } from '@/composables/constant'
 
-const props = defineProps(['image', 'brand', 'productName', 'id', 'productGroup', 'artNumber', 'supId'])
+const props = defineProps(['image', 'brand', 'supId', 'article', 'productName'])
 
 const router = useRouter()
 const store = useCartStore()
@@ -33,7 +33,8 @@ const handleAddToCart = () => {
 }
 
 const handleViewDetails = () => {
-  router.push({ name: 'My Search Details', params: { id: props.id, artNumber: props.artNumber, supId: props.supId } })
+  console.log(props.article.ART_ID, props.article.ART_ARTICLE_NR, props.supId)
+  router.push({ name: 'Product Details', params: { id: props.article.ART_ID, artNumber: props.article.ART_ARTICLE_NR, supId: props.supId } })
 }
 </script>
 
@@ -58,14 +59,17 @@ const handleViewDetails = () => {
         <h3 class="font-bold">
           {{ props.productName }}
         </h3>
-        <p>SUPPLIER BRAND: {{ props.brand }}</p>
-        <p>PRODUCT GROUP: {{ props.productGroup }}</p>
+        <p><span class="font-bold">SUPPLIER BRAND:</span> {{ props.brand }}</p>
+        <p><span class="font-bold">STATUS:</span> {{ article.ART_STATUS_TEXT }}</p>
+        <p>{{ article.DESCRIPTIONS }}</p>
+        <!-- <p>{{ article.ART_INFO }}</p> -->
+        <p>{{ article.LA_ARTICLE_CRITERIA }}</p>
       </div>
       <div class="w-1/3 flex flex-col items-end gap-2 md:gap-3">
         <div class="flex items-center justify-between">
           <ElSelect
             v-model="quantity"
-            class="m-2"
+            class="m-2 w-[100px]"
             placeholder="1"
           >
             <ElOption

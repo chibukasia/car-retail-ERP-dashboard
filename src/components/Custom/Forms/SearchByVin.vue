@@ -33,7 +33,7 @@ const hadleSearchByVin = async () => {
 }
 
 const handleRedirect = async () => {
-  await searchData.value && router.push({ name: 'Parts Categories', params: { id: searchData.value.carId, targetType: store.carType } })
+  await searchData.value && router.push({ name: 'Categories', params: { id: searchData.value.carId, targetType: store.carType } })
 }
 
 watch(searchData, async () => {

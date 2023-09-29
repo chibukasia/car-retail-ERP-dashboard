@@ -4,13 +4,15 @@ const DOMAIN = 'https://app.otospexerp.com/api'
 export const MANUFACTURERS_DOMAIN = `${DOMAIN}/manus`
 export const MODELS_DOMAIN = `${DOMAIN}/models`
 export const ARTICLES_DOMAIN = `${DOMAIN}/articles`
-export const BRANDS_DOMAIN = `${DOMAIN}/get_brands`
+export const BRANDS_DOMAIN = `${DOMAIN}/brands`
 export const CARS_DOMAIN = `${DOMAIN}/cars`
 export const CAR_INFO = `${DOMAIN}/carinfo`
 export const VIN_DOMAIN = `${DOMAIN}/vin`
 export const PLATE_NUMBER = `${DOMAIN}/platenum`
 export const SINGLE_ARTICLE = `${DOMAIN}/article`
 export const PART_NUMBER = `${DOMAIN}/partnumber`
+export const CAR_SUPPLIERS_PRODUCTS = `${DOMAIN}/carsuppliersproducts`
+export const PRODUCT_GROUP = `${DOMAIN}/productgroup`
 
 export const ARTICLES_VIEW = `${DOMAIN}/articles_view`
 export const ALL_HOME_MANUFACTURERS = `${DOMAIN}/get_all_home_manufacturers`

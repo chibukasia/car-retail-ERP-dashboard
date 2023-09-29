@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-// eslint-disable-next-line regex/invalid
-import axios from 'axios'
-import { ElMessage } from 'element-plus'
 import CarInfo from '../../../components/Custom/Results/CarInfo.vue'
-import { BRANDS_DOMAIN } from '../../../composables/constant'
+import useBrands from '@/composables/brands'
+import useProductGroups from '@/composables/productGroups'
 
 interface Brand {
-  id: string
-  name: string
+  SUP_ID: number
+  SUP_BRAND: string
+  SUP_MATCH_CODE: string
+  SUP_LOGO_NAME: string
 }
+
+const { brands, brandsError, brandsLoading, getBrands } = useBrands()
+const { productGroups, productGroupsErr, productGroupsLoading, getProductGroups } = useProductGroups()
+
 const brand: Ref<string> = ref('')
 const productGroup: Ref<string> = ref('')
 const brandErr: Ref<string> = ref('')
@@ -43,60 +47,13 @@ const handleSearchByBrand = () => {
  */
 
 onMounted(async () => {
-  try {
-    const response = await axios.get(BRANDS_DOMAIN, {
-      params: {
-        typeCar: 'PC',
-      },
-    })
-
-    const data = await response.data
-
-    brandOptions.value = data
-  }
-  catch (error: any) {
-    if (error.response) {
-      // brandErr.value = error.response.data.message
-      console.log(error)
-    }
-    else if (error.request) {
-      console.log(error.request)
-    }
-    else {
-      ElMessage({
-        message: 'Oops! Something went wrong',
-        showClose: true,
-        type: 'error',
-        customClass: 'font-bold',
-      })
-    }
-  }
+  await getBrands()
+  brandOptions.value = brands.value
 })
 
-watchEffect(async () => {
-  try {
-    const response = await axios.get(BRANDS_DOMAIN)
-    const data = await response.data
-
-    productGroupOptions.value = data
-  }
-  catch (error: any) {
-    if (error.response) {
-      // groupErr.value = error.response.data.message
-      console.log(error)
-    }
-    else if (error.request) {
-      console.log(error.request)
-    }
-    else {
-      ElMessage({
-        message: 'Oops! Something went wrong',
-        showClose: true,
-        type: 'error',
-        customClass: 'font-bold',
-      })
-    }
-  }
+watch(brand, async () => {
+  await getProductGroups(brand.value)
+  productGroupOptions.value = productGroups.value
 })
 </script>
 
@@ -111,12 +68,13 @@ watchEffect(async () => {
           filterable
           placeholder="Select"
           class="select"
+          :loading="brandsLoading"
         >
           <ElOption
             v-for="item in brandOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name"
+            :key="item.SUP_ID"
+            :label="item.SUP_BRAND"
+            :value="item.SUP_ID"
           />
         </ElSelect>
         <p
@@ -133,6 +91,7 @@ watchEffect(async () => {
           filterable
           placeholder="Select"
           class="select"
+          :loading="productGroupsLoading"
         >
           <ElOption
             v-for="item in productGroupOptions"

@@ -11,6 +11,7 @@ import '@core/scss/template/index.scss'
 import '@layouts/styles/index.scss'
 import '@styles/styles.scss'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedState from 'pinia-plugin-persistedstate'
 import { createApp } from 'vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -23,6 +24,9 @@ loadFonts()
 
 // Create vue app
 const app = createApp(App)
+const pinia = createPinia()
+
+pinia.use(piniaPluginPersistedState)
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)
 for (const [key, component] of Object.entries(ElementPlusIconsVue))
@@ -33,7 +37,7 @@ app.use(vuetify)
 app.use(ElementPlus, {
   size: 'large',
 })
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 
 // Mount vue app

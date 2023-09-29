@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-
 import { isEmpty } from 'lodash'
 import dayjs from 'dayjs'
 import CarInfo from '../Results/CarInfo.vue'
@@ -27,7 +26,7 @@ const store = useCarStore()
 const manufacturersStore = useManufacturesStore()
 const { getManufacturers, manufacturersLoading } = useManufacturers()
 const { getModels, models, modelsLoading } = useModels()
-const { getCars, cars, carsLoading, carData, getCarInfo, noDataFound } = useCars()
+const { getCars, cars, carsLoading, carData, getCarInfo, noDataFound, carDataLoading } = useCars()
 const { getEngineCodes, engineCodes, engineLoading } = useEngineCodes()
 
 const selectedType: Ref<string> = ref('PC')
@@ -56,7 +55,7 @@ const ccCapacity: Ref<string> = ref('')
 const loading: Ref<boolean> = ref(false)
 
 const handleRedirect = () => {
-  router.push({ name: 'Parts Categories', params: { id: car.value, targetType: selectedType.value } })
+  router.push({ name: 'Categories', params: { id: car.value, targetType: selectedType.value } })
 }
 
 const handleTypeClick = (button: IButton) => {
@@ -77,8 +76,6 @@ watch(model, async () => await getCars({ model: model.value, selectedType: selec
 watch(selectedManufacturer, async () => {
   if (selectedType.value === 'ENG')
     await getEngineCodes(selectedManufacturer.value)
-
-  // await getCarInfo({ car: engineCode.value, selectedType: selectedType.value })
 })
 
 watch(car, async () => {
@@ -88,20 +85,19 @@ watch(car, async () => {
   fuelType.value = carData.value && carData.value.PC_FUEL_TYPE
 
   if (route.path !== '/home')
-    router.push({ name: 'Parts Categories', params: { id: car.value, targetType: selectedType.value } })
+    router.push({ name: 'Categories', params: { id: car.value, targetType: selectedType.value } })
 })
 
 watch(engineCode, async () => {
   await getCarInfo({ car: engineCode.value, selectedType: selectedType.value })
-  await console.log(noDataFound.value)
   modelYear.value = carData.value && dayjs(carData.value.PCS_CONSTRUCTION_INTERVAL_START).format('YYYY')
   fuelType.value = carData.value && carData.value.PC_FUEL_TYPE
 
   if (route.path !== '/home')
-    router.push({ name: 'Parts Categories', params: { id: engineCode.value, targetType: selectedType.value } })
+    router.push({ name: 'Categories', params: { id: engineCode.value, targetType: selectedType.value } })
 })
 watchEffect(() => {
-  loading.value = carsLoading.value || modelsLoading.value || manufacturersLoading.value || engineLoading.value
+  loading.value = carDataLoading.value
 })
 </script>
 
@@ -128,6 +124,7 @@ watchEffect(() => {
           filterable
           placeholder="Select"
           class="select"
+          :loading="manufacturersLoading"
         >
           <ElOption
             v-for="item in manufacturersStore.manufacturers"
@@ -153,6 +150,7 @@ watchEffect(() => {
           filterable
           placeholder="Select"
           class="select"
+          :loading="engineLoading"
         >
           <ElOption
             v-for="item in engineCodes"
@@ -182,6 +180,7 @@ watchEffect(() => {
           filterable
           placeholder="Select"
           class="select"
+          :loading="modelsLoading"
         >
           <ElOption
             value=""
@@ -235,6 +234,7 @@ watchEffect(() => {
           filterable
           placeholder="Select"
           class="select"
+          :loading="carsLoading"
 
           fit-input-width
         >

@@ -52,7 +52,7 @@ watch(searchData, async () => {
 })
 
 const handleRedirect = () => {
-  router.push({ name: 'Parts Categories', params: { id: searchData.value.carId, targetType: carStore.carType } })
+  router.push({ name: 'Categories', params: { id: searchData.value.carId, targetType: carStore.carType } })
 }
 </script>
 
