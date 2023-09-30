@@ -29,7 +29,6 @@ const brandStore = useBrandStore()
 
 const searchResults: Ref<IArticle[]> = ref([])
 
-const selectedBrand: Ref<string> = ref('')
 const loading: Ref<boolean> = ref(false)
 const noDataFound: Ref<boolean> = ref(false)
 const itemsPerPage: Ref<number> = ref(10)
@@ -38,29 +37,13 @@ const index: Ref<number> = ref(0)
 
 const currentPage: Ref<number> = ref(1)
 
-// const filteredSearchResultsByBrand = computed(() => {
-//   if (selectedBrand.value === '')
-//     return searchResults.value
-
-//   return searchResults.value.filter((item: IArticle) => item.SUP_BRAND === selectedBrand.value)
-// })
-
 // const filteredSearchResultsByAssemblyGroup = computed(() => {
 //   return searchResults.value.filter((item: IArticle) => item.PRODUCT_GROUP.toLowerCase().includes(assemblyGroup.value.toLowerCase()))
 // })
 
-watch(selectedBrand, () => {
-  // filteredSearchResults.value = filteredSearchResultsByBrand.value
-  index.value = carSuppliersProducts.value.findIndex(item => item.SUP_BRAND === selectedBrand.value)
-})
-
 // watch(assemblyGroup, () => {
 //   filteredSearchResults.value = filteredSearchResultsByAssemblyGroup.value
 // })
-
-// const brands = computed(() => (
-//   carSuppliersProducts.value && uniq(carSuppliersProducts.value.map(item => item.SUP_BRAND))
-// ))
 
 const filteredItems = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage.value
@@ -74,10 +57,17 @@ const pagedItems = computed(() => {
 })
 
 onMounted(async () => {
+  loading.value = true
   await getCarSuppliersProduct({ carid: props.carId, strid: props.searchTreeId, selectedType: carSTore.carType })
+
+  const brands = carSuppliersProducts.value && uniq(carSuppliersProducts.value.map(item => item.SUP_BRAND))
+
+  brandStore.setBrands(brands)
+  brandStore.setCarSupplierProducts(carSuppliersProducts.value)
+  loading.value = false
 })
 
-watch([carSuppliersProducts, index], async () => {
+watch([carSuppliersProducts, () => brandStore.selectedBrandIndex], async () => {
   if (carSuppliersProducts.value.length > 0) {
     try {
       loading.value = true
@@ -85,8 +75,8 @@ watch([carSuppliersProducts, index], async () => {
       const response = await axios.get(ARTICLES_DOMAIN, {
         params: {
           carid: props.carId,
-          ptid: carSuppliersProducts.value[index.value].PT_ID,
-          suppid: carSuppliersProducts.value[index.value].SUP_ID,
+          ptid: carSuppliersProducts.value[brandStore.selectedBrandIndex].PT_ID,
+          suppid: carSuppliersProducts.value[brandStore.selectedBrandIndex].SUP_ID,
           typeCar: carSTore.carType,
         },
       })
@@ -109,6 +99,10 @@ watch([carSuppliersProducts, index], async () => {
   else {
     noDataFound.value = true
   }
+})
+
+onBeforeRouteUpdate((to, from) => {
+  brandStore.setBrands([])
 })
 </script>
 

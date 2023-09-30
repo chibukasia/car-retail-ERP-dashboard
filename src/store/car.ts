@@ -1,15 +1,18 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
+import type { ICategory } from '@/globalTypes'
 
 const useCarStore = defineStore('car', () => {
   const cars: Ref<any[]> = ref([])
   const cartInfo: Ref<any> = ref(null)
   const carCategories: Ref<any> = ref(null)
   const carType: Ref<string> = ref('PC')
-  const filteredCategories: Ref<any[]> = ref([])
+  const filteredCategories: Ref<ICategory[]> = ref([])
   const filters: Ref<any[]> = ref([])
+  const allCategories: Ref<ICategory[]> = ref([])
   const filterLevel: Ref<number> = ref(1)
+  const filterTitles: Ref<string[]> = ref([])
 
   const setCars = (carsArr: any[]) => {
     cars.value = carsArr
@@ -27,8 +30,12 @@ const useCarStore = defineStore('car', () => {
     carType.value = type
   }
 
-  const setFilteredCategories = (categoriesArray: any[]) => {
+  const setFilteredCategories = (categoriesArray: ICategory[]) => {
     filteredCategories.value = categoriesArray
+  }
+
+  const setAllCategories = (categories: ICategory[]) => {
+    allCategories.value = categories
   }
 
   const setFilters = (filtersArr: any[]) => {
@@ -37,6 +44,19 @@ const useCarStore = defineStore('car', () => {
 
   const setFilterLevel = (level: number) => {
     filterLevel.value = level
+  }
+
+  const decrementFilterLevel = () => {
+    if (filterLevel.value > 1)
+      filterLevel.value--
+  }
+
+  const setFilterTitles = (title: string) => {
+    filterTitles.value.push(title)
+  }
+
+  const removeFilterTitle = () => {
+    filterTitles.value.pop()
   }
 
   return {
@@ -54,6 +74,12 @@ const useCarStore = defineStore('car', () => {
     setFilters,
     filterLevel,
     setFilterLevel,
+    allCategories,
+    setAllCategories,
+    decrementFilterLevel,
+    filterTitles,
+    setFilterTitles,
+    removeFilterTitle,
   }
 }, { persist: true })
 

@@ -21,7 +21,7 @@ interface ICategory {
   NODE_3_STR_ID: string | null
 }
 
-const store = useCarStore()
+const carStore = useCarStore()
 
 const router = useRouter()
 const route = useRoute()
@@ -55,11 +55,11 @@ const handleLevel3Click = (item: ICategory) => {
     item.NODE_2_STR_ID && item.NODE_2_TEXT && handleRedirect(item.NODE_2_STR_ID, item.NODE_2_TEXT)
   }
   else {
-    const newItems = store.carCategories[route.params.treeName.toString()]
+    const newItems = carStore.carCategories[route.params.treeName.toString()]
 
     level4FilteredItems.value = newItems.filter((obj: ICategory) => obj.NODE_2_STR_ID === item.NODE_2_STR_ID)
     console.log(level4FilteredItems.value)
-    store.setFilteredCategories(level4FilteredItems.value)
+    carStore.setFilteredCategories(level4FilteredItems.value)
     router.push({ name: 'Categories', params: { id: route.params.id, treeName: item.ROOT_NODE_TEXT, strName: item.NODE_3_TEXT, strid: item.NODE_2_STR_ID } })
   }
 }
@@ -75,74 +75,74 @@ const handlePrimaryCategoryClick = (values: ICategory[]) => {
 }
 
 const handleNestedCartegoriesClick = (categoryItem: ICategory) => {
-  handleRedirect(categoryItem.NODE_1_STR_ID, categoryItem.NODE_1_TEXT)
+  // handleRedirect(categoryItem.NODE_1_STR_ID, categoryItem.NODE_1_TEXT)
 
-  // if (categoryItem.STR_LEVEL === 2) {
-  //   handleRedirect(categoryItem.NODE_1_STR_ID, categoryItem.NODE_1_TEXT)
-  // }
-  // else {
-  //   const newItems = store.carCategories[route.params.treeName.toString()]
+  if (categoryItem.STR_LEVEL === 2) {
+    handleRedirect(categoryItem.NODE_1_STR_ID, categoryItem.NODE_1_TEXT)
+  }
+  else {
+    const newItems = carStore.carCategories[route.params.treeName.toString()]
 
-  //   level3FilteredItems.value = newItems.filter((obj: ICategory) => obj.NODE_1_STR_ID === categoryItem.NODE_1_STR_ID)
-  //   console.log(level3FilteredItems.value)
-  //   store.setFilteredCategories(level3FilteredItems.value)
-  //   router.push({ name: 'Categories', params: { id: route.params.id, treeName: categoryItem.ROOT_NODE_TEXT, strName: categoryItem.NODE_2_TEXT, strid: categoryItem.NODE_1_STR_ID } })
-  // }
+    level3FilteredItems.value = newItems.filter((obj: ICategory) => obj.NODE_1_STR_ID === categoryItem.NODE_1_STR_ID)
+    console.log(level3FilteredItems.value)
+    carStore.setFilteredCategories(level3FilteredItems.value)
+    router.push({ name: 'Categories', params: { id: route.params.id, treeName: categoryItem.ROOT_NODE_TEXT, strName: categoryItem.NODE_2_TEXT, strid: categoryItem.NODE_1_STR_ID } })
+  }
 }
 
 onMounted(async () => {
-  carCategoriesData.value = store.carCategories
+  carCategoriesData.value = carStore.carCategories
   if (route.params.treeName && route.params.strid) {
-    const newItems = store.carCategories[route.params.treeName.toString()]
+    const newItems = carStore.carCategories[route.params.treeName.toString()]
 
     filteredItems.value = newItems.filter((item: ICategory) => item.NODE_1_STR_ID === route.params.strid || item.NODE_2_STR_ID === route.params.strid || item.NODE_3_STR_ID === route.params.strid)
-    store.setFilteredCategories(filteredItems.value)
+    carStore.setFilteredCategories(filteredItems.value)
     console.log(filteredItems.value.filter((item: ICategory) => item.NODE_1_STR_ID === route.params.strid || item.NODE_2_STR_ID === route.params.strid || item.NODE_3_STR_ID === route.params.strid))
   }
   else if (route.params.treeName) {
-    filteredItems.value = uniqBy(store.carCategories[route.params.treeName.toString()], 'NODE_1_TEXT')
-    store.setFilteredCategories(filteredItems.value)
+    filteredItems.value = uniqBy(carStore.carCategories[route.params.treeName.toString()], 'NODE_1_TEXT')
+    carStore.setFilteredCategories(filteredItems.value)
     console.log(filteredItems.value)
   }
 })
 
 watch(() => route.params, () => {
-  carCategoriesData.value = store.carCategories
+  carCategoriesData.value = carStore.carCategories
   if (route.params.treeName && route.params.strid) {
-    const newItems = store.carCategories[route.params.treeName.toString()]
+    const newItems = carStore.carCategories[route.params.treeName.toString()]
 
     filteredItems.value = newItems.filter((item: ICategory) => item.NODE_1_STR_ID === route.params.strid || item.NODE_2_STR_ID === route.params.strid || item.NODE_3_STR_ID === route.params.strid)
-    store.setFilteredCategories(filteredItems.value)
+    carStore.setFilteredCategories(filteredItems.value)
     console.log(filteredItems.value.filter((item: ICategory) => item.NODE_1_STR_ID === route.params.strid || item.NODE_2_STR_ID === route.params.strid || item.NODE_3_STR_ID === route.params.strid))
   }
   else if (route.params.treeName && !route.params.strid) {
-    filteredItems.value = uniqBy(store.carCategories[route.params.treeName.toString()], 'NODE_1_TEXT')
-    store.setFilteredCategories([])
+    filteredItems.value = uniqBy(carStore.carCategories[route.params.treeName.toString()], 'NODE_1_TEXT')
+    carStore.setFilteredCategories([])
     console.log(filteredItems.value)
   }
 })
 
-onBeforeRouteUpdate(async (to, from) => {
-  console.log('Params from::', from.params)
-  console.log('Params to::', to.params)
-  carCategoriesData.value = store.carCategories
-  if (to.params.treeName && to.params.strid) {
-    const newItems = store.carCategories[route.params.treeName as string]
+// onBeforeRouteUpdate(async (to, from) => {
+//   console.log('Params from::', from.params)
+//   console.log('Params to::', to.params)
+//   carCategoriesData.value = carStore.carCategories
+//   if (to.params.treeName && to.params.strid) {
+//     const newItems = carStore.carCategories[route.params.treeName as string]
 
-    filteredItems.value = newItems.filter((item: ICategory) => item.NODE_1_STR_ID === route.params.strid || item.NODE_2_STR_ID === route.params.strid || item.NODE_3_STR_ID === route.params.strid)
-    store.setFilteredCategories(filteredItems.value)
-  }
-  else if (to.params.treeName !== '' && !to.params.strid) {
-    console.log('Tree name::', to.params.treeName)
-    filteredItems.value = uniqBy(store.carCategories[route.params.treeName as string], 'NODE_1_TEXT')
-    store.setFilteredCategories(filteredItems.value)
-    console.log(filteredItems.value)
-  }
-  else if (to.params.treeName === '' && to.params.targetTYpe) {
-    filteredItems.value = []
-    store.setFilteredCategories([])
-  }
-})
+//     filteredItems.value = newItems.filter((item: ICategory) => item.NODE_1_STR_ID === route.params.strid || item.NODE_2_STR_ID === route.params.strid || item.NODE_3_STR_ID === route.params.strid)
+//     carStore.setFilteredCategories(filteredItems.value)
+//   }
+//   else if (to.params.treeName !== '' && !to.params.strid) {
+//     console.log('Tree name::', to.params.treeName)
+//     filteredItems.value = uniqBy(carStore.carCategories[route.params.treeName as string], 'NODE_1_TEXT')
+//     carStore.setFilteredCategories(filteredItems.value)
+//     console.log(filteredItems.value)
+//   }
+//   else if (to.params.treeName === '' && to.params.targetTYpe) {
+//     filteredItems.value = []
+//     carStore.setFilteredCategories([])
+//   }
+// })
 </script>
 
 <template>
@@ -190,37 +190,35 @@ onBeforeRouteUpdate(async (to, from) => {
           </div>
         </div>
 
-        <!--
-          <div v-else-if="level3FilteredItems.length > 0 && level4FilteredItems.length === 0">
+        <div v-else-if="level3FilteredItems.length > 0 && level4FilteredItems.length === 0">
           <div class="flex flex-wrap flex-col md:flex-row gap-6 w-full">
-          <div
-          v-for="(item, index) in level3FilteredItems"
-          :key="item.NODE_2_STR_ID ?? index"
-          :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${item.NODE_2_STR_ID}.png`"
-          >
-          <PartCard
-          :name=" item.NODE_2_TEXT"
-          @click="handleLevel3Click(item)"
-          />
+            <div
+              v-for="(item, index) in level3FilteredItems"
+              :key="item.NODE_2_STR_ID ?? index"
+              :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${item.NODE_2_STR_ID}.png`"
+            >
+              <PartCard
+                :name=" item.NODE_2_TEXT"
+                @click="handleLevel3Click(item)"
+              />
+            </div>
           </div>
-          </div>
-          </div>
+        </div>
 
-          <div v-else-if="level4FilteredItems.length === 0">
+        <div v-else-if="level4FilteredItems.length === 0">
           <div class="flex flex-wrap flex-col md:flex-row gap-6 w-full">
-          <div
-          v-for="(item, index) in level4FilteredItems"
-          :key="item.NODE_3_STR_ID ?? index"
-          :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${item.NODE_3_STR_ID}.png`"
-          >
-          <PartCard
-          :name=" item.NODE_3_TEXT"
-          @click="handleLevel4Click(item)"
-          />
+            <div
+              v-for="(item, index) in level4FilteredItems"
+              :key="item.NODE_3_STR_ID ?? index"
+              :image="`${S3_STORAGE_IMAGE}img.sections/100x100/${item.NODE_3_STR_ID}.png`"
+            >
+              <PartCard
+                :name=" item.NODE_3_TEXT"
+                @click="handleLevel4Click(item)"
+              />
+            </div>
           </div>
-          </div>
-          </div>
-        -->
+        </div>
       </div>
     </div>
   </div>

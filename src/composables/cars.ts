@@ -61,6 +61,7 @@ export default function useCars() {
       if (responseData.data) {
         carData.value = responseData.data
         store.setCarInfo(responseData.data)
+        store.setCategories(responseData.tree)
 
         const jsonString = JSON.stringify(carData.value)
 
@@ -107,7 +108,7 @@ export default function useCars() {
 
       const responseData = await response.data
 
-      carSuppliersProducts.value = responseData.data
+      carSuppliersProducts.value = responseData.suppliersproducts
       loading.value = false
     }
     catch (err: any) {
