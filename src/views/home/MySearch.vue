@@ -91,10 +91,10 @@ onMounted(() => {
   carCategoriesData.value = carStore.carCategories
 })
 
-watch(() => route.params, async () => {
-  if (route.name === 'Categories')
-    await getCarInfo({ selectedType: carStore.carType, car: props.carId })
-})
+// watch(() => route.params, async () => {
+//   if (route.name === 'Categories')
+//     await getCarInfo({ selectedType: carStore.carType, car: props.carId })
+// })
 </script>
 
 <template>

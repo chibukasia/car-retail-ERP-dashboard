@@ -1,8 +1,10 @@
 <!-- eslint-disable vue/require-prop-types -->
 <script setup lang="ts">
 import { pickBy } from 'lodash'
+import {useRoute} from 'vue-router'
 
 const props = defineProps(['carDetails'])
+const route = useRoute()
 const carData: Ref<any> = ref(null)
 
 const newCarData = computed(() => {
@@ -11,6 +13,7 @@ const newCarData = computed(() => {
 
 onMounted(() => {
   carData.value = JSON.parse(localStorage.getItem('carData') || '{}')
+  console.log(route.params)
 })
 </script>
 
