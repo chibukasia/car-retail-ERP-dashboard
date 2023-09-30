@@ -4,6 +4,7 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import HomeHeader from '../../components/Custom/Headers/HomeHeader.vue'
 import HomeSeacrh from './HomeSearch.vue'
+import BrandSearch from './BrandSearch.vue'
 
 const isPersonal: Ref<boolean> = ref(true)
 const isCommercial: Ref<boolean> = ref(true)
@@ -65,6 +66,9 @@ const handleSamrtSeach = () => {
                 :is-commercial="isCommercial"
                 :is-personal="isPersonal"
               />
+            </div>
+            <div class="search-tabs my-6">
+              <BrandSearch />
             </div>
           </div>
         </div>
