@@ -81,6 +81,6 @@ const useCarStore = defineStore('car', () => {
     setFilterTitles,
     removeFilterTitle,
   }
-}, { persist: true })
+}, { persist: { storage: sessionStorage } })
 
 export default useCarStore

@@ -1,19 +1,13 @@
 <!-- eslint-disable vue/require-prop-types -->
 <script setup lang="ts">
 import { pickBy } from 'lodash'
-import {useRoute} from 'vue-router'
+import useCarStore from '@/store/car'
 
-const props = defineProps(['carDetails'])
-const route = useRoute()
-const carData: Ref<any> = ref(null)
+// const props = defineProps(['carDetails'])
+const carStore = useCarStore()
 
 const newCarData = computed(() => {
-  return pickBy(props.carDetails ?? carData.value, (value: any) => value !== null)
-})
-
-onMounted(() => {
-  carData.value = JSON.parse(localStorage.getItem('carData') || '{}')
-  console.log(route.params)
+  return pickBy(carStore.cartInfo, (value: any) => value !== null)
 })
 </script>
 
@@ -29,7 +23,7 @@ onMounted(() => {
         class="w-full md:w-[32%]"
       >
         <p v-if="value !== null">
-          {{ key === 'TYPEL' ? key : key.toString().slice(3).replace(/_/g, ' ').replace('-00', '')  }}: {{ value.toString().replace('-00', '').replace('.0000', '') }}
+          {{ key === 'TYPEL' ? key : key.toString().slice(3).replace(/_/g, ' ').replace('-00', '') }}: {{ value.toString().replace('-00', '').replace('.0000', '') }}
         </p>
       </div>
     </div>

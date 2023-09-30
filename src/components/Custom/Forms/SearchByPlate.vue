@@ -134,7 +134,7 @@ const handleRedirect = () => {
       <p>NO DATA FOUND</p>
     </div>
     <div v-if="carData">
-      <CarInfo />
+      <CarInfo :car-details="carData"/>
       <div
         v-if="$route.path === '/home'"
         class="pt-5"

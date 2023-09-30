@@ -1,26 +1,31 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import CarInfo from '../Results/CarInfo.vue'
 import { checkIfImageExists } from '../../../utils'
 import HomeSearch from '@/views/home/HomeSearch.vue'
 import useCarStore from '@/store/car'
 import { S3_STORAGE_IMAGE } from '@/composables/constant'
+import useCars from '@/composables/cars'
 
 const props = defineProps(['carId'])
-const store = useCarStore()
+const carStore = useCarStore()
 const show: Ref<boolean> = ref(false)
 const showType: Ref<string> = ref('car-info')
 const carImage: Ref<string> = ref('')
 const imageLoading: Ref<boolean> = ref(false)
-const carData: Ref<any> = ref(null)
 const isSticky: Ref<boolean> = ref(false)
 const stickyDiv: Ref<any> = ref(null)
 const imgHeight: Ref<string | number> = ref(100)
 const lastScrollTop: Ref<number> = ref(0)
+const carIdValue: Ref<string> = ref(props.carId)
 
-onMounted(() => {
-  carData.value = JSON.parse(localStorage.getItem('carData') || '{}')
+const { getCarInfo, carDataLoading } = useCars()
+const route = useRoute()
+
+onMounted(async () => {
+  await getCarInfo({ car: props.carId, selectedType: carStore.carType })
 })
 
 const handleScroll = () => {
@@ -55,22 +60,26 @@ const stickyClass = computed(() => {
   }
 })
 
-watchEffect(() => {
-  carData.value = JSON.parse(localStorage.getItem('carData') || '{}')
-  // eslint-disable-next-line no-unused-expressions
-  store.cartInfo
-})
-
 watchEffect(async () => {
   imageLoading.value = true
-  if (await checkIfImageExists(`${S3_STORAGE_IMAGE}carImages/${props.carId}.jpg`)) {
-    carImage.value = `${S3_STORAGE_IMAGE}carImages/${props.carId}.jpg`
+  if (await checkIfImageExists(`${S3_STORAGE_IMAGE}carImages/${carIdValue.value}.jpg`)) {
+    carImage.value = `${S3_STORAGE_IMAGE}carImages/${carIdValue.value}.jpg`
     imageLoading.value = false
   }
   else {
     carImage.value = `${S3_STORAGE_IMAGE}carImages/notfound.jpeg`
     imageLoading.value = false
   }
+})
+
+watch(() => route.params, async () => {
+  await getCarInfo({ car: route.params.id as string, selectedType: carStore.carType })
+
+  if (route.params.carId)
+    carIdValue.value = route.params.carId as string
+
+  else
+    carIdValue.value = route.params.id as string
 })
 
 const handleChangeSelection = () => {
@@ -95,65 +104,70 @@ const handleShowCarInfo = () => {
 </script>
 
 <template>
-  <div
-    v-if="carData"
-    ref="stickyDiv"
-    :class="stickyClass"
-    class="w-full shadow-md rounded-md bg-white dark:bg-black px-10 transition ease-in-out delay-300 scroll-smooth"
-  >
-    <div class="flex flex-col md:flex-row justify-between ">
-      <div class="w-full md:w-1/2 flex flex-col md:flex-row items-center gap-5">
-        <VImg
-          :width="200"
-          :height="120"
-          aspect-ratio="16/9"
-          class="cursor-pointer "
-          lazy-src="https://media.tenor.com/40NNfhcajzoAAAAC/car-wheel.gif"
-          :src="carImage"
-          @click="handleShowCarInfo"
-        >
-          <template #placeholder>
-            <div class="d-flex align-center justify-center fill-height">
-              <VProgressCircular
-                color="grey-lighten-4"
-                indeterminate
-              />
-            </div>
-          </template>
-        </VImg>
-        <VBtn
-          variant="text"
-          class="hover:bg-[#a9bdf1]"
-          @click="handleShowCarInfo"
-        >
-          {{ carData.TYPEL }}
-        </VBtn>
-      </div>
-      <div class="w-full md:w-1/2 flex items-center justify-center px-10">
-        <VBtn
-          variant="text"
-          class="hover:bg-[#a9bdf1]"
-          :prepend-icon="show && showType === 'select' ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-          @click="handleChangeSelection"
-        >
-          Change Selection
-        </VBtn>
-      </div>
-    </div>
-    <div>
-      <Transition name="slide-fade">
-        <div
-          v-if="show"
-          class="py-4"
-        >
-          <CarInfo v-if="showType === 'car-info'" />
-          <HomeSearch
-            v-if="showType === 'select'"
-            is-commercial
-            is-personal
-          />
+  <div v-loading="carDataLoading">
+    <div
+      v-if="carStore.cartInfo"
+      ref="stickyDiv"
+      :class="stickyClass"
+      class="w-full shadow-md rounded-md bg-white dark:bg-black px-10 transition ease-in-out delay-300 scroll-smooth"
+    >
+      <div class="flex flex-col md:flex-row justify-between ">
+        <div class="w-full md:w-1/2 flex flex-col md:flex-row items-center gap-5">
+          <VImg
+            :width="200"
+            :height="120"
+            aspect-ratio="16/9"
+            class="cursor-pointer "
+            lazy-src="https://media.tenor.com/40NNfhcajzoAAAAC/car-wheel.gif"
+            :src="carImage"
+            @click="handleShowCarInfo"
+          >
+            <template #placeholder>
+              <div class="d-flex align-center justify-center fill-height">
+                <VProgressCircular
+                  color="grey-lighten-4"
+                  indeterminate
+                />
+              </div>
+            </template>
+          </VImg>
+          <VBtn
+            variant="text"
+            class="hover:bg-[#a9bdf1]"
+            @click="handleShowCarInfo"
+          >
+            {{ carStore.cartInfo.TYPEL }}
+          </VBtn>
         </div>
-      </Transition>
+        <div class="w-full md:w-1/2 flex items-center justify-center px-10">
+          <VBtn
+            variant="text"
+            class="hover:bg-[#a9bdf1]"
+            :prepend-icon="show && showType === 'select' ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+            @click="handleChangeSelection"
+          >
+            Change Selection
+          </VBtn>
+        </div>
+      </div>
+      <div>
+        <Transition name="slide-fade">
+          <div
+            v-if="show"
+            class="py-4"
+          >
+            <CarInfo
+              v-if="showType === 'car-info'"
+              :car-details="carStore.cartInfo"
+            />
+            <HomeSearch
+              v-if="showType === 'select'"
+              is-commercial
+              is-personal
+            />
+          </div>
+        </Transition>
+      </div>
     </div>
   </div>
 </template>

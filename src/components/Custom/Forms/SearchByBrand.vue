@@ -46,15 +46,15 @@ const handleSearchByBrand = () => {
  * TO BE TESTED AND THEN REFACTORED
  */
 
-onMounted(async () => {
-  await getBrands()
-  brandOptions.value = brands.value
-})
+// onMounted(async () => {
+//   await getBrands()
+//   brandOptions.value = brands.value
+// })
 
-watch(brand, async () => {
-  await getProductGroups(brand.value)
-  productGroupOptions.value = productGroups.value
-})
+// watch(brand, async () => {
+//   await getProductGroups(brand.value)
+//   productGroupOptions.value = productGroups.value
+// })
 </script>
 
 <template>

@@ -3,12 +3,10 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import CarInfo from '../Results/CarInfo.vue'
 import useParts from '@/composables/parts'
-import useArticleStore from '@/store/article'
 
 const router = useRouter()
-const store = useArticleStore()
 
-const { articleInfo, error, loading, getByPartNumber, noDataFound } = useParts()
+const { articles, error, loading, getByPartNumber, noDataFound } = useParts()
 const partNumber: Ref<string> = ref('')
 
 const handleSearchByPlate = async () => {
@@ -19,8 +17,7 @@ const handleSearchByPlate = async () => {
   }
 
   await getByPartNumber(partNumber.value)
-  store.setArticleInfo(articleInfo.value)
-  await articleInfo.value && router.push({ name: 'My Search Details', params: { id: articleInfo.value.ART_ID, artNumber: articleInfo.value.ART_ARTICLE_NR, supId: articleInfo.value.ART_SUP_ID } })
+  // articles.value && router.push({ name: 'Product List', params: { categoryId: treeID, groupName: treeName, carId: props.carId } })
 }
 </script>
 

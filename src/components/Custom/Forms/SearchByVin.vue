@@ -82,7 +82,7 @@ watch(searchData, async () => {
       />
     </div>
     <div v-if="!isEmpty(carData)">
-      <CarInfo />
+      <CarInfo :car-details="carData"/>
       <div
         v-if="$route.path === '/home'"
         class="pt-5"

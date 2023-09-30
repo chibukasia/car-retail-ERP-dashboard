@@ -20,7 +20,7 @@ const route = useRoute()
 const filterTitle: Ref<string> = ref('Categories')
 const carCategoriesData: Ref<any> = ref(null)
 const loading: Ref<boolean> = ref(false)
-const selectedBrand: Ref<string> = ref(brandStore.brands.length > 0 ? brandStore.brands[0] : '')
+const selectedBrand: Ref<string> = ref('')
 
 const handleRedirect = (treeID: string, treeName: string) => {
   router.push({ name: 'Product List', params: { categoryId: treeID, groupName: treeName, carId: props.carId } })
@@ -82,19 +82,25 @@ watch(selectedBrand, async () => {
   brandStore.setSelectedBrandIndex(index)
 })
 
-watch(() => carStore.carCategories, () => {
+watchEffect(() => {
   carCategoriesData.value = carStore.carCategories
-  console.log(carCategoriesData.value)
 })
 
 onMounted(() => {
   carCategoriesData.value = carStore.carCategories
 })
 
-// watch(() => route.params, async () => {
-//   if (route.name === 'Categories')
-//     await getCarInfo({ selectedType: carStore.carType, car: props.carId })
-// })
+watch(() => route.params, async () => {
+  if (route.name === 'Categories')
+    await getCarInfo({ selectedType: carStore.carType, car: props.carId })
+})
+
+watch(() => brandStore.brands, () => {
+  // eslint-disable-next-line curly
+  if (brandStore.brands.length > 0) {
+    selectedBrand.value = brandStore.brands[0]
+  }
+})
 </script>
 
 <template>

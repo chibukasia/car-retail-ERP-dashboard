@@ -33,7 +33,6 @@ const loading: Ref<boolean> = ref(false)
 const noDataFound: Ref<boolean> = ref(false)
 const itemsPerPage: Ref<number> = ref(10)
 const filteredSearchResults: Ref<IArticle[]> = ref([])
-const index: Ref<number> = ref(0)
 
 const currentPage: Ref<number> = ref(1)
 
@@ -100,10 +99,6 @@ watch([carSuppliersProducts, () => brandStore.selectedBrandIndex], async () => {
     noDataFound.value = true
   }
 })
-
-onBeforeRouteUpdate((to, from) => {
-  brandStore.setBrands([])
-})
 </script>
 
 <template>
@@ -126,11 +121,11 @@ onBeforeRouteUpdate((to, from) => {
           :key="result.ART_ID"
         >
           <PartOverViewVue
-            :sup-id="carSuppliersProducts[index].SUP_ID"
-            :brand="carSuppliersProducts[index].SUP_BRAND"
-            :product-name="carSuppliersProducts[index].PRODUCT_GROUP"
+            :sup-id="carSuppliersProducts[brandStore.selectedBrandIndex].SUP_ID"
+            :brand="carSuppliersProducts[brandStore.selectedBrandIndex].SUP_BRAND"
+            :product-name="carSuppliersProducts[brandStore.selectedBrandIndex].PRODUCT_GROUP"
             :article="result"
-            :image=" `${S3_STORAGE_IMAGE}articles/${carSuppliersProducts[index].SUP_ID}/${result.ART_MEDIA_FILE_NAME}`"
+            :image=" `${S3_STORAGE_IMAGE}articles/${carSuppliersProducts[brandStore.selectedBrandIndex].SUP_ID}/${result.ART_MEDIA_FILE_NAME}`"
           />
         </div>
         <div class="text-center mt-5">

@@ -62,10 +62,6 @@ export default function useCars() {
         carData.value = responseData.data
         store.setCarInfo(responseData.data)
         store.setCategories(responseData.tree)
-
-        const jsonString = JSON.stringify(carData.value)
-
-        localStorage.setItem('carData', jsonString)
         noDataFound.value = false
       }
       else {

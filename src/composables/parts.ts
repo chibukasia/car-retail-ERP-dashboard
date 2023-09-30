@@ -8,6 +8,7 @@ import { PART_NUMBER } from './constant'
 // const store = useCarStore()
 export default function useParts() {
   const articleInfo: Ref<any> = ref(null)
+  const articles: Ref<any[]> = ref([])
   const loading: Ref<boolean> = ref(false)
   const noDataFound: Ref<boolean> = ref(false)
   const error: Ref<string> = ref('')
@@ -31,11 +32,9 @@ export default function useParts() {
         return
       }
 
-      articleInfo.value = responseData.data
+      articles.value = responseData.data
       console.log(responseData.data)
       loading.value = false
-
-      // store.setCarInfo(carData.value)
     }
     catch (err: any) {
       console.log(err)
@@ -58,6 +57,6 @@ export default function useParts() {
   }
 
   return {
-    getByPartNumber, articleInfo, loading, error, noDataFound,
+    getByPartNumber, articleInfo, loading, error, noDataFound, articles,
   }
 }

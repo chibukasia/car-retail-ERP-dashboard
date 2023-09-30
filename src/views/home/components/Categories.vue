@@ -65,9 +65,13 @@ onMounted(() => {
   console.log(carStore.filterLevel)
 })
 
-watch(() => carStore.carCategories, () => {
+watchEffect(() => {
   carCategoriesData.value = carStore.carCategories
-  console.log(carCategoriesData.value)
+})
+
+watch(() => route.name, () => {
+  if (route.name !== 'Categories' && route.name !== 'Product List')
+    carStore.setFilterLevel(1)
 })
 
 window.addEventListener('popstate', () => {

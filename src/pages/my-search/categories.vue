@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import SearchCategories from '../../views/home/SearchCategories.vue'
-import Categories from '@/views/home/components/Categories.vue';
+import Categories from '@/views/home/components/Categories.vue'
 
 const props = defineProps(['id'])
 </script>
