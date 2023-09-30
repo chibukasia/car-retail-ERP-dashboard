@@ -70,16 +70,9 @@ watch(() => carStore.carCategories, () => {
   console.log(carCategoriesData.value)
 })
 
-watch(() => route.name, () => {
-  // eslint-disable-next-line curly
-  if (route.name !== 'Categories') {
-    carStore.setFilterLevel(1)
-  }
-})
-
 window.addEventListener('popstate', () => {
   // eslint-disable-next-line curly
-  if (carStore.filterLevel > 1) {
+  if (carStore.filterLevel > 1 && route.name === 'Categories') {
     carStore.filterLevel--
   }
   carStore.removeFilterTitle()
